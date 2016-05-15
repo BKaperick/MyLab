@@ -24,19 +24,6 @@ void matrix_insert(matrix* mat, uint32_t r, uint32_t c, double val) {
 	*temp = val;
 }
 
-//Multiplies first two arguments, stores result in third
-//Should have sparse option
-//*res should point to an initialized matrix object.
-//Returns false if dimensions do not add up.
-bool matrix_mult(matrix* m1, matrix* m2, matrix* res) {
-	return false;
-}
-
-//Adds first two arguments, stores result in third. 
-//Returns false if dimensions do not add up.
-bool matrix_add(matrix* m1, matrix* m2, matrix* res) {
-	return false;
-}
 
 void matrix_print(matrix* mat) {
 	printf("\n");

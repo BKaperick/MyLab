@@ -31,7 +31,7 @@ void matrix_insert(matrix* mat, uint32_t r, uint32_t c, double val);
 //Should have sparse option
 //*res should point to an initialized matrix object.
 //Returns false if dimensions do not add up.
-bool matrix_mult(matrix* m1, matrix* m2, matrix* res);
+matrix* matrix_mult(matrix* m1, matrix* m2);
 
 //Adds first two arguments, stores result in third. 
 //Returns false if dimensions do not add up.
