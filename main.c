@@ -9,7 +9,10 @@ int main() {
 	matrix m;
 	matrix_init(&m, 5, 5);
 	matrix_print(&m);
-	matrix_insert(&m, 1, 1, 3.0);
+	matrix_insert(&m, 2, 2, 3.0);
+	printf("rand %f\n", m.data[3]);
 	matrix_print(&m);
+	printf("rand %f\n", m.data[3]);
+	matrix_free(&m);
 	return 1;
 }
