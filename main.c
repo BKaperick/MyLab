@@ -5,20 +5,7 @@
 #include <stdio.h>
 #include "matrix.h"
 
-int main() {
-	matrix m;
-	matrix_init(&m, 2, 2);
-	matrix_print(&m);
-	matrix_insert(&m, 2, 2, 3.0);
-	matrix_print(&m);
-	matrix_free(&m);
-	int tests = 0;
-	tests += (int)test_matrix_multiply();
-	printf(
-	return 1;
-}
-
-bool test_matrix_multiply() {
+bool test_matrix_mult(double tol) {
 	matrix m1, m2, correct;
 	matrix_init(&m1, 2, 2);
 	matrix_init(&m2, 2, 1);
@@ -32,11 +19,24 @@ bool test_matrix_multiply() {
 	matrix_insert(&correct,2,1,3.0);
 	//[1 2][1] = [9]
 	//[3 0][4] = [3]
-	matrix* ans = matrix_multiply(&m1, &m2);
-	bool result = matrix_compare(matrix* m1, matrix* m2, double tol);	
+	matrix* ans = matrix_mult(&m1, &m2);
+	bool result = matrix_compare(&correct, ans, tol);
+	if (!result) {
+		matrix_print(&m1);
+		matrix_print(&m2);
+		matrix_print(ans);
+	}	
 	matrix_free(&m1);
 	matrix_free(&m2);
 	matrix_free(&correct);
 	matrix_free(ans);
 	return result;
 }
+
+int main() {
+	int tests = 0;
+	tests += test_matrix_mult(.01);
+	printf("%d / %d tests passed\n", tests, 1);
+	return 1;
+}
+

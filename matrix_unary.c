@@ -41,3 +41,12 @@ void matrix_print(matrix* mat) {
 void matrix_free(matrix* mat) {
 	free(mat->data);
 }
+
+matrix* matrix_scale(matrix* mat, double scale) {
+	matrix* res = malloc(sizeof(matrix));
+	matrix_init(res, mat->rows, mat->cols);
+	for (int i = 0; i < mat->size; i++) {
+		res->data[i] = mat->data[i]*scale;
+	}
+	return res;
+}
