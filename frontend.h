@@ -11,6 +11,8 @@
 #define DEFINE "define"
 #define PRINT "print"
 #define INPUT_SIZE 50
+#define MAX_WORDS 5
+#define MAX_WORD_SIZE 15
 struct variable_holder {
 	matrix* mats[INITIAL_SIZE];
 	char* names[INITIAL_SIZE];
@@ -22,11 +24,15 @@ struct variable_holder {
 
 typedef struct variable_holder variable_holder;
 
+matrix** variable_mats();
+
+char** variable_names();
+
 bool variable_add(matrix* mat, char* name);
 
 matrix* variable_get_matrix(char* name);
 
-bool define(char* input);
+bool define(char** input);
 
 //parse the command user gives.
 //Currently supports:

@@ -7,6 +7,7 @@ variable_holder* vhp = &vh;
 
 matrix** variable_mats() {
 	if (vhp->mats_ext == NULL) {
+		printf("still using default storage\n");
 		return vhp->mats;
 	}
 	return (vhp->mats_ext);
@@ -14,6 +15,7 @@ matrix** variable_mats() {
 
 char** variable_names() {
 	if (vhp->names_ext == NULL) {
+		printf("still using default storage\n");
 		return vhp->names;
 	}
 	return (vhp->names_ext);
@@ -21,6 +23,7 @@ char** variable_names() {
 
 matrix* variable_get_matrix(char* name) {
 	printf("vhp size: %d\n", vhp->size);
+	matrix_print(vhp->mats[0]);
 	for (int i = 0; i < vhp->size; i++) {
 		printf("name \"%s\"\n", vhp->names[i]);
 		if (vhp->names[i] == name) {
@@ -60,8 +63,10 @@ bool variable_add(matrix* mat, char* name) {
 			return false;
 		}
 	}	
-	variable_mats(vhp)[sz] = mat;
-	variable_names(vhp)[sz] = name;
+	variable_mats()[sz] = mat;
+	printf("adding \"%s\"\n", name);
+	vhp->names[sz] = name;
+	//variable_names()[sz] = name;
 	printf("incrementing size from %d ", vhp->size);
 	vhp->size++;
 	printf("to %d\n", vhp->size);
@@ -69,7 +74,7 @@ bool variable_add(matrix* mat, char* name) {
 }
 
 bool variable_print(char* name) {
-	printf("gonna print\n");
+	printf("gonna print\"%s\"\n", name);
 	matrix* m = variable_get_matrix(name);
 	if (m == NULL)
 		return false;
@@ -83,22 +88,38 @@ bool variable_print(char* name) {
 //	[matrix name] = x1,x2,...,xn;xn+1,...
 //	[matrix name] = [matrix name] [+/-/*] [matrix name]  
 bool parse(char* input) {
-	char* tempin = malloc(strlen(input)*sizeof(char));
-	strcpy(tempin, input);
-	char* temp = strtok(tempin, " \t\n");
-	if (temp != NULL) {
-		if (strcmp(temp, DEFINE) == 0) {
-			printf("DEFINITION\n");
-			bool val = define(input);
-			return val;
+	char* words[MAX_WORDS];
+	int len = strlen(input);
+	int placement = 0;
+	int wordlength = 0;
+	char word[MAX_WORD_SIZE];
+	for (int i = 0; i < len; i++) {
+		if (input[i] == ' ' || input[i] == '\n') {
+			word[i] = '\0';
+			words[placement] = &(word[i-wordlength]);
+			placement++;
+			wordlength = 0;
 		}
-		else if (strcmp(temp, PRINT) == 0) {
-			//temp = strtok(NULL, " \t\n");
-			bool val = variable_print(temp);
-			return val;
+		else if (input[i] == '\0')
+			break;
+		else {
+			wordlength++;
+			word[i] = input[i];
 		}
-		//add in other functionality here
 	}
+	int args = placement;
+	
+	if (args == 4 && strcmp(DEFINE, words[0]) == 0) {
+		printf("DEFINITION\n");
+		bool val = define(&(words[1]));
+		return val;
+	}
+	else if (args == 2 && strcmp(words[0], PRINT) == 0) {
+		//temp = strtok(NULL, " \t\n");
+		bool val = variable_print(words[1]);
+		return val;
+	}
+		//add in other functionality here
 	else {
 		printf("nothing to be read in input\n");
 		return false;
@@ -106,24 +127,12 @@ bool parse(char* input) {
 	return false;
 }
 
-bool define(char* input) {
-	printf("input: %s\n", input);
-	char* temp = strtok(input, " \t\n");
-	printf("temp: %s\n", temp);
-	temp = strtok(NULL, " \t\n");
-	if (temp == NULL){printf("check1\n");
-		return false;}
-	char* name = temp;
-	temp = strtok(NULL, " \t\n");
-	if (temp == NULL) {printf("check2\n");
-		return false;}
-	uint32_t rows = atoi(temp);
+bool define(char** input) {
+	char* name = input[0];
+	uint32_t rows = atoi(input[1]);
 	if (rows <= 0) {printf("check3\n");
 		return false;}
-	temp = strtok(NULL, " \t\n");
-	if (temp == NULL) {printf("check4\n");
-		return false;}
-	uint32_t cols = atoi(temp);
+	uint32_t cols = atoi(input[2]);
 	if (cols <= 0) {printf("check5\n");
 		return false;}
 	matrix* m = malloc(sizeof(matrix));
