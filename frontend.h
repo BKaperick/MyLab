@@ -9,6 +9,8 @@
 
 #define INITIAL_SIZE 10
 #define DEFINE "define"
+#define PRINT "print"
+#define INPUT_SIZE 50
 struct variable_holder {
 	matrix* mats[INITIAL_SIZE];
 	char* names[INITIAL_SIZE];
@@ -20,23 +22,18 @@ struct variable_holder {
 
 typedef struct variable_holder variable_holder;
 
-//variable_holder vh = {.size = 0, .space = INITIAL_SIZE};
-//variable_holder* vhp;
+bool variable_add(matrix* mat, char* name);
 
-void variable_init(variable_holder*);
+matrix* variable_get_matrix(char* name);
 
-bool variable_add(variable_holder* holder, matrix* mat, char* name);
-
-matrix* variable_get_matrix(variable_holder* holder, char* name);
-
-bool define(variable_holder* vh, char* input);
+bool define(char* input);
 
 //parse the command user gives.
 //Currently supports:
 //	define [matrix name] [rows] [columns]
 //	[matrix name] = x1,x2,...,xn;xn+1,...
 //	[matrix name] = [matrix name] [+/-/*] [matrix name]  
-bool parse(variable_holder* vh, char* input);
+bool parse(char* input);
 
-
+bool variable_print(char* name);
 #endif

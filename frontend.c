@@ -1,107 +1,136 @@
 #include "matrix.h"
 #include "frontend.h"
 
+variable_holder vh = {.size = 0, .space = INITIAL_SIZE};
+variable_holder* vhp = &vh;
 
 
-void variable_init(variable_holder* holder) {
-	holder->size = 0;	
-	holder->space = INITIAL_SIZE;
+matrix** variable_mats() {
+	if (vhp->mats_ext == NULL) {
+		return vhp->mats;
+	}
+	return (vhp->mats_ext);
 }
 
-matrix** variable_mats(variable_holder* holder) {
-	if (holder->mats_ext == NULL) {
-		return holder->mats;
+char** variable_names() {
+	if (vhp->names_ext == NULL) {
+		return vhp->names;
 	}
-	return (holder->mats_ext);
-}
-
-char** variable_names(variable_holder* holder) {
-	if (holder->names_ext == NULL) {
-		return holder->names;
-	}
-	return (holder->names_ext);
+	return (vhp->names_ext);
 }	
 
-matrix* variable_get_matrix(variable_holder* holder, char* name) {
-	for (int i = 0; i < holder->size; i++) {
-		if (holder->names[i] == name) {
-			return holder->mats[i];
+matrix* variable_get_matrix(char* name) {
+	printf("vhp size: %d\n", vhp->size);
+	for (int i = 0; i < vhp->size; i++) {
+		printf("name \"%s\"\n", vhp->names[i]);
+		if (vhp->names[i] == name) {
+			return vhp->mats[i];
 		}
 	}
 	return NULL;	
 }
 
-bool variable_add(variable_holder* holder, matrix* mat, char* name) {
-	int sz = holder->size;
-	if (sz < holder->space) {}
-	else if (holder->mats_ext == NULL) {
-		holder->mats_ext = malloc(2*INITIAL_SIZE*sizeof(matrix));
-		holder->names_ext = malloc(2*INITIAL_SIZE*sizeof(char));
-		if (!(holder->mats_ext) || !(holder->names_ext) ) {
+bool variable_add(matrix* mat, char* name) {
+	printf("name: %s\n", name);
+	printf("vhp size: %d\n", vhp->size);
+	//define local variable since it's referenced a lot
+	int sz = vhp->size;
+	
+	printf("sz = %d\n", sz);
+
+	//Don't allocate or reallocate memory if size < space
+	if (sz < vhp->space) {printf("no need to [re]allocate mem\n");}
+	else if (vhp->mats_ext == NULL) {
+		vhp->mats_ext = malloc(2*INITIAL_SIZE*sizeof(matrix));
+		vhp->names_ext = malloc(2*INITIAL_SIZE*sizeof(char));
+		if (!(vhp->mats_ext) || !(vhp->names_ext) ) {
 			return false;
 		}
 		for (int i = 0; i < sz; i++) {
-			holder->mats_ext[i] = holder->mats[i];
-			holder->names_ext[i] = holder->names[i];
+			vhp->mats_ext[i] = vhp->mats[i];
+			vhp->names_ext[i] = vhp->names[i];
 		}
-		holder->space *= 2;
+		vhp->space *= 2;
 	}
 	else {
-		holder->mats_ext = realloc(holder->mats_ext, 2*holder->space*sizeof(matrix));	
-		holder->names_ext = realloc(holder->names_ext, 2*holder->space*sizeof(char));
-		holder->space *= 2;
-		if (!(holder->mats_ext) || !(holder->names_ext) ) {
+		vhp->mats_ext = realloc(vhp->mats_ext, 2*vhp->space*sizeof(matrix));	
+		vhp->names_ext = realloc(vhp->names_ext, 2*vhp->space*sizeof(char));
+		vhp->space *= 2;
+		if (!(vhp->mats_ext) || !(vhp->names_ext) ) {
 			return false;
 		}
 	}	
-	variable_mats(holder)[sz] = mat;
-	variable_names(holder)[sz] = name;
-	holder->size++;
+	variable_mats(vhp)[sz] = mat;
+	variable_names(vhp)[sz] = name;
+	printf("incrementing size from %d ", vhp->size);
+	vhp->size++;
+	printf("to %d\n", vhp->size);
 	return true;	
 }
 
+bool variable_print(char* name) {
+	printf("gonna print\n");
+	matrix* m = variable_get_matrix(name);
+	if (m == NULL)
+		return false;
+	matrix_print(m);
+	return true;
+}
 
 //parse the command user gives.
 //Currently supports:
 //	define [matrix name] [rows] [columns]
 //	[matrix name] = x1,x2,...,xn;xn+1,...
 //	[matrix name] = [matrix name] [+/-/*] [matrix name]  
-bool parse(variable_holder* vh, char* input) {
-	char* temp = strtok(input, " \t");
-	while (temp != NULL) {
+bool parse(char* input) {
+	char* tempin = malloc(strlen(input)*sizeof(char));
+	strcpy(tempin, input);
+	char* temp = strtok(tempin, " \t\n");
+	if (temp != NULL) {
 		if (strcmp(temp, DEFINE) == 0) {
-			bool val = define(vh, input);
-			if (!val)
-				return false;
-			return true;
+			printf("DEFINITION\n");
+			bool val = define(input);
+			return val;
 		}
+		else if (strcmp(temp, PRINT) == 0) {
+			//temp = strtok(NULL, " \t\n");
+			bool val = variable_print(temp);
+			return val;
+		}
+		//add in other functionality here
+	}
+	else {
+		printf("nothing to be read in input\n");
+		return false;
 	}
 	return false;
-
 }
 
-bool define(variable_holder* vh, char* input) {
-	char* temp = strtok(input, " \t");
-	temp = strtok(NULL, " \t");
-	if (temp == NULL)
-		return false;
+bool define(char* input) {
+	printf("input: %s\n", input);
+	char* temp = strtok(input, " \t\n");
+	printf("temp: %s\n", temp);
+	temp = strtok(NULL, " \t\n");
+	if (temp == NULL){printf("check1\n");
+		return false;}
 	char* name = temp;
-	temp = strtok(NULL, " \t");
-	if (temp == NULL)
-		return false;
+	temp = strtok(NULL, " \t\n");
+	if (temp == NULL) {printf("check2\n");
+		return false;}
 	uint32_t rows = atoi(temp);
-	if (rows <= 0)	
-		return false;
-	temp = strtok(NULL, " \t");
-	if (temp == NULL)
-		return false;
+	if (rows <= 0) {printf("check3\n");
+		return false;}
+	temp = strtok(NULL, " \t\n");
+	if (temp == NULL) {printf("check4\n");
+		return false;}
 	uint32_t cols = atoi(temp);
-	if (cols <= 0)	
-		return false;
+	if (cols <= 0) {printf("check5\n");
+		return false;}
 	matrix* m = malloc(sizeof(matrix));
-	if (m == NULL)
-		return false;
+	if (m == NULL) {printf("check6\n");
+		return false;}
 	matrix_init(m,rows,cols);
-	return variable_add(vh, m, name);
+	printf("ready to add\n");
+	return variable_add(m, name);
 }	
 

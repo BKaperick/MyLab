@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "matrix.h"
+#include "frontend.h"
 
 bool test_matrix_mult(double tol) {
 	matrix m1, m2, correct;
@@ -75,6 +76,17 @@ int main() {
 	tests += test_matrix_mult(.01);
 	tests += test_matrix_add_subtract(.01);
 	printf("%d / %d tests passed\n", tests, 3);
+	
+	char input[INPUT_SIZE];
+	while (true) {
+		printf("> ");
+		fgets(input, INPUT_SIZE, stdin);
+		bool syntax_check = parse(input);
+		if (!syntax_check) {
+			printf("INVALID SYNTAX\n");
+		}
+	}
+
 	return 1;
 }
 
