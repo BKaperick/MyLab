@@ -32,6 +32,7 @@ matrix* matrix_add(matrix* m1, matrix* m2) {
 	for (int i = 0; i < m1->size; i++) {
 		res->data[i] = m1->data[i] + m2->data[i];
 	}
+	return res;
 }
 
 //Adds first two arguments, returns pointer to result. 
@@ -44,6 +45,7 @@ matrix* matrix_sub(matrix* m1, matrix* m2) {
 	for (int i = 0; i < m1->size; i++) {
 		res->data[i] = m1->data[i] - m2->data[i];
 	}
+	return res;
 }
 
 //checks if two matrices are equal within a certain tolerance

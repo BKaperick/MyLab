@@ -62,7 +62,7 @@ matrix* matrix_add(matrix* m1, matrix* m2);
 
 //Subtracts the second from the first argument, storing result.
 //returns null pointer if dimensions don't add up.
-matrix* matrix_subtract(matrix* m1, matrix* m2);
+matrix* matrix_sub(matrix* m1, matrix* m2);
 
 //checks if two matrices are equal within a certain tolerance
 bool matrix_compare(matrix* m1, matrix* m2, double tol);
