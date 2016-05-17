@@ -78,7 +78,7 @@ int main() {
 	tests += test_matrix_add_subtract(.01);
 	printf("%d / %d tests passed\n", tests, 3);
 
-	char* input = malloc(INPUT_SIZE * sizeof(char));
+	char input[INPUT_SIZE];// = malloc(INPUT_SIZE * sizeof(char));
 	while (true) {
 		//variable_printall();
 		printf("> ");
@@ -91,8 +91,6 @@ int main() {
 		if (!syntax_check) {
 			printf("INVALID SYNTAX\n");
 		}
-		else
-			printf("VALID SYNTAX\n");
 	}
 
 	return 1;

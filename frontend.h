@@ -40,6 +40,14 @@ bool variable_add(matrix* mat, char* name);
 
 matrix* variable_get_matrix(char* name);
 
+//Retrieves the matrices corresponding to n1 and n2
+//Then performs op1 on those matrices
+//then stores the result in newname
+//returns the result for posterity.
+matrix* variable_evaluate(char* newname, char* n1, char* op1, char* n2);
+
+bool only_valid_varchars(char* name);
+
 bool define(char** input);
 
 //parse the command user gives.
@@ -48,6 +56,8 @@ bool define(char** input);
 //	[matrix name] = x1,x2,...,xn;xn+1,...
 //	[matrix name] = [matrix name] [+/-/*] [matrix name]  
 bool parse(char* input);
+
+bool variable_remap(char* n1, char* n2);
 
 bool variable_print(char* name);
 #endif

@@ -39,8 +39,8 @@ char** variable_names() {
 
 matrix* variable_get_matrix(char* name) {
 	for (int i = 0; i < vhp->size; i++) {
-		if (strcmp(vhp->names[i], name) == 0) {
-			return vhp->mats[i];
+		if (strcmp(variable_names()[i], name) == 0) {
+			return variable_mats()[i];
 		}
 	}
 	return NULL;	
@@ -51,6 +51,14 @@ bool variable_add(matrix* mat, char* name) {
 	//define local variable since it's referenced a lot
 	int sz = vhp->size;
 	
+	//Overwriting already defined variable.
+	for (int i = 0; i < sz; i++) {
+		if (strcmp(variable_names()[i], name) == 0) {
+			variable_mats()[i] = mat;
+			return true;
+		}
+	}
+
 	//Don't allocate or reallocate memory if size < space
 	if (sz < vhp->space) {}
 	else if (vhp->mats_ext == NULL) {
@@ -86,17 +94,7 @@ bool variable_add(matrix* mat, char* name) {
 //	[matrix name] = x1,x2,...,xn;xn+1,...
 //	[matrix name] = [matrix name] [+/-/*] [matrix name]  
 bool parse(char* input) {
-
-	if (vhp->size == -1){
-		matrix* newm = malloc(sizeof(matrix));
-		matrix_init(newm, 2, 5);
-		printf("ROWS %d, COLS %d\n", newm->rows, newm->cols);
-		vhp->names[0] = "B";
-		vhp->mats[0] = newm;
-		vhp->size ++;
-	}
 	
-	//variable_printall();
 	char* words[MAX_WORDS];
 	int len = strlen(input);
 	int placement = 0;
@@ -117,15 +115,28 @@ bool parse(char* input) {
 		}
 	}
 	int args = placement;
-	
 	if (args == 4 && strcmp(DEFINE, words[0]) == 0) {
-		bool val = define(&(words[1]));
-		return val;
+		return define(&(words[1]));
 	}
 	else if (args == 2 && strcmp(words[0], PRINT) == 0) {
-		//temp = strtok(NULL, " \t\n");
-		bool val = variable_print(words[1]);
-		return val;
+		if (strcmp(words[1], "all") == 0) {
+			variable_printall();
+			return true;
+		}
+		return variable_print(words[1]);
+	}
+	else if (args >= 3 && strcmp(words[1], "=") == 0) {
+		//matrix* lhand = variable_get_matrix(words[0]);
+		if (only_valid_varchars(words[0])) {
+			if (args == 3) {
+				return variable_remap(words[0], words[2]);
+			}
+			else if (args == 5) {
+				if (variable_evaluate(words[0], words[2], words[3], words[4]) != NULL)
+					return true;
+			}
+		}
+
 	}
 		//add in other functionality here
 	else {
@@ -134,6 +145,17 @@ bool parse(char* input) {
 	return false;
 }
 
+bool only_valid_varchars(char* name) {
+	for (int i = 0; i < strlen(name); i++) {
+		if (name[i] == '[')
+			return false;
+		else if (name[i] == ']')
+			return false;
+		else if ('0' <= name[i] && name[i] <= '9')
+			return false;
+	}
+	return true;
+}
 bool define(char** input) {
 	char* name = input[0];
 	uint32_t rows = atoi(input[1]);
@@ -146,7 +168,33 @@ bool define(char** input) {
 	if (m == NULL) {
 		return false;}
 	matrix_init(m,rows,cols);
-	bool ret = variable_add(m, name);
-	return ret;
+	return variable_add(m, name);
 }	
 
+matrix* variable_evaluate(char* newname, char* n1, char* op, char* n2) {
+	printf("in eval\n");
+	matrix* m1 = variable_get_matrix(n1);
+	matrix* m2 = variable_get_matrix(n2);
+	if (m1 == NULL || m2 == NULL)
+		return NULL;
+	matrix* res = malloc(sizeof(matrix));
+	if (strcmp(op, "+") == 0) {
+		printf("adding\n");
+		res = matrix_add(m1, m2);
+	}
+	else if (strcmp(op, "*") == 0) {
+		res = matrix_mult(m1, m2);
+	}
+	else if (strcmp(op, "-") == 0) {
+		res = matrix_sub(m1, m2);
+	}
+	bool ret = variable_add(res, newname);
+	if (!ret) {
+		return NULL;
+	}
+	return res;
+}		
+
+bool variable_remap(char* name1, char* name2) {
+	return variable_add(variable_get_matrix(name2), name1);
+}
