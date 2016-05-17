@@ -24,6 +24,11 @@ struct variable_holder {
 
 typedef struct variable_holder variable_holder;
 
+extern variable_holder vh;
+extern variable_holder* vhp;
+
+void variable_printall();
+
 matrix** variable_mats();
 
 char** variable_names();
