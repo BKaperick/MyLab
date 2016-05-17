@@ -1,6 +1,10 @@
 #include "matrix.h"
 #include "frontend.h"
 
+//extern variable_holder vh;
+//extern variable_holder* vhp;
+variable_holder vh = {.size = 0, .space = INITIAL_SIZE, .names_ext = NULL, .mats_ext = NULL};
+variable_holder* vhp = &vh;
 
 matrix** variable_mats() {
 	if (vhp->mats_ext == NULL) {
@@ -10,11 +14,9 @@ matrix** variable_mats() {
 }
 
 bool variable_print(char* name) {
-	printf("gonna print\"%s\"\n", name);
 	matrix* m = variable_get_matrix(name);
 	if (m == NULL)
 		return false;
-	printf("from variable_print():\n");
 	matrix_print(m);
 	return true;
 }
@@ -23,7 +25,6 @@ void variable_printall() {
 	printf("variables(%d)----------[\n", vhp->size);
 	for (int i = 0; i < vhp->size; i++) {
 		printf("\"%s\":\n", variable_names()[i]);
-		printf("\"%s\":\n", vhp->names[i]);
 		matrix_print(variable_mats()[i]);
 	}
 	printf("]-------------variables\n");
@@ -38,8 +39,7 @@ char** variable_names() {
 
 matrix* variable_get_matrix(char* name) {
 	for (int i = 0; i < vhp->size; i++) {
-		printf("name \"%s\"\n", vhp->names[i]);
-		if (vhp->names[i] == name) {
+		if (strcmp(vhp->names[i], name) == 0) {
 			return vhp->mats[i];
 		}
 	}
@@ -47,20 +47,13 @@ matrix* variable_get_matrix(char* name) {
 }
 
 bool variable_add(matrix* mat, char* name) {
-	printf("name: %s\n", name);
-	printf("vhp size: %d\n", vhp->size);
 
 	//define local variable since it's referenced a lot
 	int sz = vhp->size;
 	
-	printf("sz = %d\n", sz);
-
 	//Don't allocate or reallocate memory if size < space
-	if (sz < vhp->space) {
-		printf("no need to [re]allocate mem\n");
-	}
+	if (sz < vhp->space) {}
 	else if (vhp->mats_ext == NULL) {
-		printf("allocate mem\n");
 		vhp->mats_ext = malloc(4 + INITIAL_SIZE*sizeof(matrix));
 		vhp->names_ext = malloc(4 + INITIAL_SIZE*sizeof(char));
 		if (!(vhp->mats_ext) || !(vhp->names_ext) ) {
@@ -73,7 +66,6 @@ bool variable_add(matrix* mat, char* name) {
 		vhp->space += 4;
 	}
 	else {
-		printf("reallocate mem\n");
 		vhp->mats_ext = realloc(vhp->mats_ext, 4 + vhp->space*sizeof(matrix));	
 		vhp->names_ext = realloc(vhp->names_ext, 4 + vhp->space*sizeof(char));
 		vhp->space += 4;
@@ -83,7 +75,6 @@ bool variable_add(matrix* mat, char* name) {
 	}	
 	variable_mats()[sz] = mat;
 	variable_names()[sz] = name;
-	printf("SAVING \"%s\"\n", variable_names()[sz]);
 	vhp->size++;
 	
 	return true;	
@@ -95,12 +86,22 @@ bool variable_add(matrix* mat, char* name) {
 //	[matrix name] = x1,x2,...,xn;xn+1,...
 //	[matrix name] = [matrix name] [+/-/*] [matrix name]  
 bool parse(char* input) {
-	variable_printall();
+
+	if (vhp->size == -1){
+		matrix* newm = malloc(sizeof(matrix));
+		matrix_init(newm, 2, 5);
+		printf("ROWS %d, COLS %d\n", newm->rows, newm->cols);
+		vhp->names[0] = "B";
+		vhp->mats[0] = newm;
+		vhp->size ++;
+	}
+	
+	//variable_printall();
 	char* words[MAX_WORDS];
 	int len = strlen(input);
 	int placement = 0;
 	int wordlength = 0;
-	char word[MAX_WORD_SIZE];
+	char* word = malloc(MAX_WORD_SIZE*sizeof(char));
 	for (int i = 0; i < len; i++) {
 		if (input[i] == ' ' || input[i] == '\n') {
 			word[i] = '\0';
@@ -118,7 +119,6 @@ bool parse(char* input) {
 	int args = placement;
 	
 	if (args == 4 && strcmp(DEFINE, words[0]) == 0) {
-		printf("DEFINITION\n");
 		bool val = define(&(words[1]));
 		return val;
 	}
@@ -129,7 +129,6 @@ bool parse(char* input) {
 	}
 		//add in other functionality here
 	else {
-		printf("nothing to be read in input\n");
 		return false;
 	}
 	return false;
@@ -138,19 +137,16 @@ bool parse(char* input) {
 bool define(char** input) {
 	char* name = input[0];
 	uint32_t rows = atoi(input[1]);
-	if (rows <= 0) {printf("check3\n");
+	if (rows <= 0) {
 		return false;}
 	uint32_t cols = atoi(input[2]);
-	if (cols <= 0) {printf("check5\n");
+	if (cols <= 0) {
 		return false;}
 	matrix* m = malloc(sizeof(matrix));
-	if (m == NULL) {printf("check6\n");
+	if (m == NULL) {
 		return false;}
 	matrix_init(m,rows,cols);
-	printf("ready to add\n");
 	bool ret = variable_add(m, name);
-	printf("STILL SAVING \"%s\"\n", variable_names()[0]);
-	printf("YES, STILL SAVING \"%s\"\n", vhp->names[0]);
 	return ret;
 }	
 

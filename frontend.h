@@ -13,6 +13,9 @@
 #define INPUT_SIZE 50
 #define MAX_WORDS 5
 #define MAX_WORD_SIZE 15
+
+//extern char* names[INITIAL_SIZE];
+
 struct variable_holder {
 	matrix* mats[INITIAL_SIZE];
 	char* names[INITIAL_SIZE];
