@@ -4,7 +4,7 @@ Basically a clone of MatLab for practice in C and learning some stable algorithm
 1. COMPILING
 
 To compile, run the command
-$gcc -o [executable] -std=c99 -Wall main.c matrix_unary.c matrix_binary.c frontend.c
+$gcc -o [executable_name] -std=c99 -Wall main.c matrix_unary.c matrix_binary.c frontend.c
 
 2. USER INTERFACE
 
@@ -17,5 +17,6 @@ $gcc -o [executable] -std=c99 -Wall main.c matrix_unary.c matrix_binary.c fronte
 	
 		ii. print [variable_name / "all"]
 
-			Prints out the variable name and contents of that matrix.  Note, if you type 			    "all" instead of a valid variable name, it will return all variable names 
+			Prints out the variable name and contents of that matrix.  Note, if you type
+			"all" instead of a valid variable name, it will return all variable names 
 			and contents stored in memory.	
