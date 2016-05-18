@@ -8,6 +8,7 @@ $gcc -o [executable_name] -std=c99 -Wall main.c matrix_unary.c matrix_binary.c f
 
 2. USER INTERFACE
 
+
 	a. FUNCTIONS
 	
 		i. define [variable_name] [number of rows] [number of columns]
@@ -28,9 +29,8 @@ $gcc -o [executable_name] -std=c99 -Wall main.c matrix_unary.c matrix_binary.c f
 
 		iv. [variable_name] = [variable_name] [+ / * / -] [variable_name]
 
-			First, the right hand side is evaluated, and then stores this value into the			    left hand side.  It will be invalid syntax if the dimensions do not match.
-			Note: For right now, it is necessary that a space is included in between
-			each argument.
+			First, the right hand side is evaluated, and then stores this value into the			    
+			left hand side.  It will be invalid syntax if the dimensions do not match.
 
 	b. OTHER RESTRICTIONS AND NOTES
 
@@ -39,13 +39,16 @@ $gcc -o [executable_name] -std=c99 -Wall main.c matrix_unary.c matrix_binary.c f
 			'[', ']', '0'-'9'
 		
 		ii. Variable names cannot exactly match any of the following:
+			
+			"all"	
 		
-			"all"
+		iii. Any white space in between variable names, operators, etc. can be any number of
+	             spaces without issue.
 
-		iii. Exactly one space must be maintained between each argument.  For example
+			  In fact, between operators, no space is necessary at all.  For example, all
+			  of the following are valid:
 
-			"define A 3 3" -- good
-			"define A  3 3" -- bad
-			"C = A+B"	-- bad
-			"C = A + B"    -- good
-		
+			  "A=B+C"
+			  "A =B+    C"
+			  "A=  B +C"
+

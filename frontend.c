@@ -1,10 +1,11 @@
 #include "matrix.h"
 #include "frontend.h"
 
-//extern variable_holder vh;
-//extern variable_holder* vhp;
 variable_holder vh = {.size = 0, .space = INITIAL_SIZE, .names_ext = NULL, .mats_ext = NULL};
 variable_holder* vhp = &vh;
+
+char var_char_disallowed[NUM_DISALLOWED] = {'[',']','0','1','2','3','4','5','6','7','8','9'};
+char operators[NUM_OPERATORS] = {'+', '-', '*', '='};
 
 matrix** variable_mats() {
 	if (vhp->mats_ext == NULL) {
@@ -88,31 +89,70 @@ bool variable_add(matrix* mat, char* name) {
 	return true;	
 }
 
-//parse the command user gives.
-//Currently supports:
-//	define [matrix name] [rows] [columns]
-//	[matrix name] = x1,x2,...,xn;xn+1,...
-//	[matrix name] = [matrix name] [+/-/*] [matrix name]  
+bool in_operators(char op) {
+	for (int i = 0; i < NUM_OPERATORS; i++) {
+		if (op == operators[i])
+			return true;
+	}
+	return false;
+}
+
 bool parse(char* input) {
-	
-	char* words[MAX_WORDS];
+	char** words = malloc(MAX_WORDS*sizeof(char*));
 	int len = strlen(input);
 	int placement = 0;
 	int wordlength = 0;
 	char* word = malloc(MAX_WORD_SIZE*sizeof(char));
+	bool midword = false;
+	int save_at = 0;
 	for (int i = 0; i < len; i++) {
 		if (input[i] == ' ' || input[i] == '\n') {
-			word[i] = '\0';
-			words[placement] = &(word[i-wordlength]);
+			if (midword) {
+				word[save_at] = '\0';
+				words[placement] = &(word[save_at-wordlength]);
+				placement++;
+				wordlength = 0;
+				midword = false;
+				save_at++;
+			}
+			if (input[i] == '\n')
+				break;
+		}
+		else if (in_operators(input[i])) {
+			if (midword) {
+				//Save current word
+				word[save_at] = '\0';
+				words[placement] = &(word[save_at-wordlength]);
+				placement++;
+				wordlength = 0;
+				i++;
+				save_at++;
+			}
+			
+			//Also save operator as a separate word
+			if (!midword)
+				word[save_at] = input[i];
+			else
+				word[save_at] = input[i-1];
+			word[save_at+1] = '\0';
+			words[placement] = &(word[save_at]);
 			placement++;
-			wordlength = 0;
+			if (midword)
+				i--;
+			midword = false;
+			save_at += 2;
 		}
 		else if (input[i] == '\0')
 			break;
 		else {
+			midword = true;
 			wordlength++;
-			word[i] = input[i];
+			word[save_at] = input[i];
+			save_at++;
 		}
+	}
+	for (int i = 0; i < placement; i++) {
+		printf("word: \"%s\"\n", words[i]);
 	}
 	int args = placement;
 	if (args == 4 && strcmp(DEFINE, words[0]) == 0) {
@@ -132,32 +172,29 @@ bool parse(char* input) {
 				return variable_remap(words[0], words[2]);
 			}
 			else if (args == 5) {
-				if (variable_evaluate(words[0], words[2], words[3], words[4]) != NULL)
-					return true;
+				return (bool) variable_evaluate(words[0], words[2], words[3], words[4]);
 			}
 		}
 
 	}
 		//add in other functionality here
-	else {
-		return false;
-	}
 	return false;
 }
 
 bool only_valid_varchars(char* name) {
 	for (int i = 0; i < strlen(name); i++) {
-		if (name[i] == '[')
-			return false;
-		else if (name[i] == ']')
-			return false;
-		else if ('0' <= name[i] && name[i] <= '9')
-			return false;
+		for (int j = 0; j < NUM_DISALLOWED; j++) {
+			if (name[i] == var_char_disallowed[j])
+				return false;
+		}
 	}
 	return true;
 }
+
 bool define(char** input) {
 	char* name = input[0];
+	if (!only_valid_varchars(name))
+		return false;
 	uint32_t rows = atoi(input[1]);
 	if (rows <= 0) {
 		return false;}

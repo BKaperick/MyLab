@@ -14,6 +14,9 @@
 #define MAX_WORDS 5
 #define MAX_WORD_SIZE 15
 
+#define NUM_DISALLOWED 12
+#define NUM_OPERATORS 4
+
 //extern char* names[INITIAL_SIZE];
 
 struct variable_holder {
@@ -30,7 +33,13 @@ typedef struct variable_holder variable_holder;
 extern variable_holder vh;
 extern variable_holder* vhp;
 
+extern char var_char_disallowed[NUM_DISALLOWED];
+extern char operators[NUM_OPERATORS];
+
+
 void variable_printall();
+
+bool in_operators(char op);
 
 matrix** variable_mats();
 
