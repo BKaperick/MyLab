@@ -78,16 +78,11 @@ int main() {
 	tests += test_matrix_add_subtract(.01);
 	printf("%d / %d tests passed\n", tests, 3);
 
-	char input[INPUT_SIZE];// = malloc(INPUT_SIZE * sizeof(char));
-	while (true) {
-		//variable_printall();
+	char input[MAX_INPUT_SIZE];// = malloc(INPUT_SIZE * sizeof(char));
+	while (strcmp("exit\n", input) != 0) {
 		printf("> ");
-		fgets(input, INPUT_SIZE, stdin);
-		//printf("from main():\n");
-		//variable_printall();
+		fgets(input, MAX_INPUT_SIZE, stdin);
 		bool syntax_check = parse(input);
-		//printf("back in main():\n");
-		//variable_printall();
 		if (!syntax_check) {
 			printf("INVALID SYNTAX\n");
 		}

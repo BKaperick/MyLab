@@ -26,7 +26,6 @@ void matrix_insert(matrix* mat, uint32_t r, uint32_t c, double val) {
 
 
 void matrix_print(matrix* mat) {
-	printf("\n");
 	for (int32_t i = 1; i <= mat->rows; i++) {
 		printf("[ ");
 		for (int32_t j = 1; j <= mat->cols; j++) {

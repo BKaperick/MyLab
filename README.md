@@ -4,7 +4,8 @@ Basically a clone of MatLab for practice in C and learning some stable algorithm
 1. COMPILING
 
 To compile, run the command
-$gcc -o [executable_name] -std=c99 -Wall main.c matrix_unary.c matrix_binary.c frontend.c
+	
+	$gcc -o [executable_name] -std=c99 -Wall main.c matrix_unary.c matrix_binary.c frontend.c
 
 2. USER INTERFACE
 
@@ -45,10 +46,18 @@ $gcc -o [executable_name] -std=c99 -Wall main.c matrix_unary.c matrix_binary.c f
 		iii. Any white space in between variable names, operators, etc. can be any number of
 	             spaces without issue.
 
-			  In fact, between operators, no space is necessary at all.  For example, all
-			  of the following are valid:
+			In fact, between operators, no space is necessary at all.  For example, all
+			of the following are valid:
 
-			  "A=B+C"
-			  "A =B+    C"
-			  "A=  B +C"
-
+			"A=B+C"
+			"A =B+    C"
+			"A=  B +C"
+		
+		iv.  Output can be supressed in any function by including a semicolon in your input.
+		     Note: by default, defining new variables will print the matrix of interest to stdout.
+		    
+ 		     	A semicolon anywhere in the input will work, for example:
+			
+			"varA = varB;    -- Good use of semicolon
+			"var;A=   varB"  -- I would strongly suggest not doing this.  It looks bad.
+			"varA; =varB"	 -- This is also just confusing.  I would not suggest doing it.

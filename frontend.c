@@ -4,9 +4,19 @@
 variable_holder vh = {.size = 0, .space = INITIAL_SIZE, .names_ext = NULL, .mats_ext = NULL};
 variable_holder* vhp = &vh;
 
+//Characters not allowed in varaible names
 char var_char_disallowed[NUM_DISALLOWED] = {'[',']','0','1','2','3','4','5','6','7','8','9'};
+
+//Operators currently defined
 char operators[NUM_OPERATORS] = {'+', '-', '*', '='};
 
+bool suppress;
+
+///////////////////////////////////
+// Variable Holder helper functions
+///////////////////////////////////
+
+//Returns pointer to matrices in memory
 matrix** variable_mats() {
 	if (vhp->mats_ext == NULL) {
 		return vhp->mats;
@@ -14,23 +24,7 @@ matrix** variable_mats() {
 	return (vhp->mats_ext);
 }
 
-bool variable_print(char* name) {
-	matrix* m = variable_get_matrix(name);
-	if (m == NULL)
-		return false;
-	matrix_print(m);
-	return true;
-}
-
-void variable_printall() {
-	printf("variables(%d)----------[\n", vhp->size);
-	for (int i = 0; i < vhp->size; i++) {
-		printf("\"%s\":\n", variable_names()[i]);
-		matrix_print(variable_mats()[i]);
-	}
-	printf("]-------------variables\n");
-}
-
+//Returns pointer to variable names in memory
 char** variable_names() {
 	if (vhp->names_ext == NULL) {
 		return vhp->names;
@@ -38,6 +32,8 @@ char** variable_names() {
 	return (vhp->names_ext);
 }
 
+//Retrieves the matrix corresponding to a given name in memory.
+//Returns: pointer to that matrix, or NULL if it doesn't exist.
 matrix* variable_get_matrix(char* name) {
 	for (int i = 0; i < vhp->size; i++) {
 		if (strcmp(variable_names()[i], name) == 0) {
@@ -47,6 +43,176 @@ matrix* variable_get_matrix(char* name) {
 	return NULL;	
 }
 
+
+//////////////////////////////////
+// User Input Functions
+//////////////////////////////////
+
+//parse the command user gives.  Calls any of the other necessary functions
+//defined in frontend
+bool parse(char* input) {
+	
+	if (strcmp(input, "exit\n") == 0)
+		return true;
+
+	//Allocates memory to store separate words
+	char** words = malloc(MAX_WORDS*sizeof(char*));
+
+	//Gets the total length of input and verifies it is not too long
+	int len = strlen(input);
+	if (len > MAX_INPUT_SIZE) {
+		printf("INPUT TOO LONG");
+		return false;
+	}
+	
+	//Which index in words the next word is saved
+	int wrds_index = 0;
+
+	//The length of the current word
+	int wordlength = 0;
+
+	//Pointer to all input with null characters inserted
+	//to delimit each word
+	char* word = malloc(MAX_INPUT_SIZE*sizeof(char));
+	
+	//Check necessary for branching logic
+	bool midword = false;
+
+	//Current inserting index into word
+	int w_index = 0;
+
+	//True only if a semicolon is in the input, suppresses output
+	suppress = false;
+
+	for (int i = 0; i < len; i++) {
+		//Suppresses output and skips over this character
+		if (input[i] == ';')
+			suppress = true;
+
+		//Signifies new word (' ') or end of input ('\n')
+		else if (input[i] == ' ' || input[i] == '\n') {
+			//If a word is currently being processed (this ' ' or '\n' comes right after a word)
+			if (wordlength > 0) {
+				//Add word to words array
+				word[w_index] = '\0';
+				words[wrds_index] = &(word[w_index-wordlength]);
+
+				//Update indicator variables
+				wrds_index++;
+				wordlength = 0;
+				midword = false;
+				w_index++;
+			}
+			if (input[i] == '\n')
+				break;
+		}
+		else if (in_operators(input[i])) {
+			if (wordlength > 0) {
+				//Save current word
+				word[w_index] = '\0';
+				words[wrds_index] = &(word[w_index-wordlength]);
+				wrds_index++;
+				wordlength = 0;
+				w_index++;
+			}
+			
+			//Also save operator as a separate word
+			word[w_index] = input[i];
+			word[w_index+1] = '\0';
+			words[wrds_index] = &(word[w_index]);
+			wrds_index++;
+			midword = false;
+			w_index += 2;
+		}
+		else {
+			midword = true;
+			wordlength++;
+			word[w_index] = input[i];
+			w_index++;
+		}
+	}
+	int args = wrds_index;
+	for (int i = 0; i < args; i++)
+		printf("word \"%s\"\n", words[i]);
+	if (args == 4 && strcmp(DEFINE, words[0]) == 0) {
+		return define(&(words[1]));
+	}
+	else if (args == 2 && strcmp(words[0], PRINT) == 0) {
+		if (strcmp(words[1], "all") == 0) {
+			variable_printall();
+			return true;
+		}
+		return variable_print(words[1]);
+	}
+	else if (args >= 3 && strcmp(words[1], "=") == 0) {
+		//matrix* lhand = variable_get_matrix(words[0]);
+		if (only_valid_varchars(words[0])) {
+			if (args == 3) {
+				
+				return variable_add(variable_get_matrix(words[2]), words[0]);
+			}
+			else if (args == 5) {
+				return (bool) variable_evaluate(words[0], words[2], words[3], words[4]);
+			}
+		}
+
+	}
+		//add in other functionality here
+	return false;
+}
+
+//Prints name if it exists in memory, otherwise prints nothing and
+//Returns: true if name exists.
+bool variable_print(char* name) {
+	matrix* m = variable_get_matrix(name);
+	if (m == NULL)
+		return false;
+	if (!suppress) matrix_print(m);
+	return true;
+}
+
+//Prints every variable in memory
+void variable_printall() {
+	if (!suppress) {
+		for (int i = 0; i < vhp->size; i++) {
+			if (i > 0) printf("\n");
+			printf("\"%s\":\n", variable_names()[i]);
+			matrix_print(variable_mats()[i]);
+		}
+	}
+}
+
+//Defines a new variable in memory
+//Returns: success of operation
+bool define(char** input) {
+
+	//Prepares name and checks if its valid
+	char* name = input[0];
+	if (!only_valid_varchars(name))
+		return false;
+	
+	//Prepares rows and checks if its valid
+	uint32_t rows = atoi(input[1]);
+	if (rows <= 0) {
+		return false;}
+
+	//Prepares columns and checks if its valid
+	uint32_t cols = atoi(input[2]);
+	if (cols <= 0) {
+		return false;}
+
+	//Creates new matrix object
+	matrix* m = malloc(sizeof(matrix));
+	if (m == NULL) {
+		return false;}
+	matrix_init(m,rows,cols);
+	
+	//Adds new object to memory under name
+	return variable_add(m, name);
+}	
+
+//Helper function called by "define".  Actually adds matrix to memory
+//Returns: success of operation
 bool variable_add(matrix* mat, char* name) {
 
 	//define local variable since it's referenced a lot
@@ -74,6 +240,7 @@ bool variable_add(matrix* mat, char* name) {
 		}
 		vhp->space += 4;
 	}
+	//Expand extra memory if necessary
 	else {
 		vhp->mats_ext = realloc(vhp->mats_ext, 4 + vhp->space*sizeof(matrix));	
 		vhp->names_ext = realloc(vhp->names_ext, 4 + vhp->space*sizeof(char));
@@ -85,129 +252,14 @@ bool variable_add(matrix* mat, char* name) {
 	variable_mats()[sz] = mat;
 	variable_names()[sz] = name;
 	vhp->size++;
-	
+	if (!suppress) variable_print(name);
 	return true;	
 }
 
-bool in_operators(char op) {
-	for (int i = 0; i < NUM_OPERATORS; i++) {
-		if (op == operators[i])
-			return true;
-	}
-	return false;
-}
-
-bool parse(char* input) {
-	char** words = malloc(MAX_WORDS*sizeof(char*));
-	int len = strlen(input);
-	int placement = 0;
-	int wordlength = 0;
-	char* word = malloc(MAX_WORD_SIZE*sizeof(char));
-	bool midword = false;
-	int save_at = 0;
-	for (int i = 0; i < len; i++) {
-		if (input[i] == ' ' || input[i] == '\n') {
-			if (midword) {
-				word[save_at] = '\0';
-				words[placement] = &(word[save_at-wordlength]);
-				placement++;
-				wordlength = 0;
-				midword = false;
-				save_at++;
-			}
-			if (input[i] == '\n')
-				break;
-		}
-		else if (in_operators(input[i])) {
-			if (midword) {
-				//Save current word
-				word[save_at] = '\0';
-				words[placement] = &(word[save_at-wordlength]);
-				placement++;
-				wordlength = 0;
-				i++;
-				save_at++;
-			}
-			
-			//Also save operator as a separate word
-			if (!midword)
-				word[save_at] = input[i];
-			else
-				word[save_at] = input[i-1];
-			word[save_at+1] = '\0';
-			words[placement] = &(word[save_at]);
-			placement++;
-			if (midword)
-				i--;
-			midword = false;
-			save_at += 2;
-		}
-		else if (input[i] == '\0')
-			break;
-		else {
-			midword = true;
-			wordlength++;
-			word[save_at] = input[i];
-			save_at++;
-		}
-	}
-	for (int i = 0; i < placement; i++) {
-		printf("word: \"%s\"\n", words[i]);
-	}
-	int args = placement;
-	if (args == 4 && strcmp(DEFINE, words[0]) == 0) {
-		return define(&(words[1]));
-	}
-	else if (args == 2 && strcmp(words[0], PRINT) == 0) {
-		if (strcmp(words[1], "all") == 0) {
-			variable_printall();
-			return true;
-		}
-		return variable_print(words[1]);
-	}
-	else if (args >= 3 && strcmp(words[1], "=") == 0) {
-		//matrix* lhand = variable_get_matrix(words[0]);
-		if (only_valid_varchars(words[0])) {
-			if (args == 3) {
-				return variable_remap(words[0], words[2]);
-			}
-			else if (args == 5) {
-				return (bool) variable_evaluate(words[0], words[2], words[3], words[4]);
-			}
-		}
-
-	}
-		//add in other functionality here
-	return false;
-}
-
-bool only_valid_varchars(char* name) {
-	for (int i = 0; i < strlen(name); i++) {
-		for (int j = 0; j < NUM_DISALLOWED; j++) {
-			if (name[i] == var_char_disallowed[j])
-				return false;
-		}
-	}
-	return true;
-}
-
-bool define(char** input) {
-	char* name = input[0];
-	if (!only_valid_varchars(name))
-		return false;
-	uint32_t rows = atoi(input[1]);
-	if (rows <= 0) {
-		return false;}
-	uint32_t cols = atoi(input[2]);
-	if (cols <= 0) {
-		return false;}
-	matrix* m = malloc(sizeof(matrix));
-	if (m == NULL) {
-		return false;}
-	matrix_init(m,rows,cols);
-	return variable_add(m, name);
-}	
-
+//Retrieves the matrices corresponding to n1 and n2
+//Then performs op1 on those matrices
+//then stores the result in newname
+//returns the result for posterity.
 matrix* variable_evaluate(char* newname, char* n1, char* op, char* n2) {
 	printf("in eval\n");
 	matrix* m1 = variable_get_matrix(n1);
@@ -232,6 +284,31 @@ matrix* variable_evaluate(char* newname, char* n1, char* op, char* n2) {
 	return res;
 }		
 
-bool variable_remap(char* name1, char* name2) {
-	return variable_add(variable_get_matrix(name2), name1);
+
+//////////////////////////////////
+// Helper / Check Functions
+//////////////////////////////////
+
+//Checks if op is in operators
+//Returns: is op a valid operator?
+bool in_operators(char op) {
+	for (int i = 0; i < NUM_OPERATORS; i++) {
+		if (op == operators[i])
+			return true;
+	}
+	return false;
 }
+
+//Checks if a variable name uses only valid characters
+//Returns: false if any invalid characters found in name
+bool only_valid_varchars(char* name) {
+	for (int i = 0; i < strlen(name); i++) {
+		for (int j = 0; j < NUM_DISALLOWED; j++) {
+			if (name[i] == var_char_disallowed[j])
+				return false;
+		}
+	}
+	return true;
+}
+
+
