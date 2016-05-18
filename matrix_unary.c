@@ -12,19 +12,22 @@ void matrix_init(matrix* mat, uint32_t r, uint32_t c) {
 	mat->square = (r == c);
 }
 
-//Retrieve element at position mat[r][c] (one-indexed
+//Retrieve element at position mat[r][c] (one-indexed)
+//Returns: the retrieved element.
 double *matrix_elem(matrix* mat, uint32_t r, uint32_t c) {
 	uint64_t index = (r-1)*(mat->cols) + c - 1;
 	double *res = &(mat->data[index]);
 	return res;
 }
 
+//Inserts val into mat[r][c]
 void matrix_insert(matrix* mat, uint32_t r, uint32_t c, double val) {
 	double* temp = matrix_elem(mat, r, c);
 	*temp = val;
 }
 
 
+//Prints the matrix contents, formatted, to stdout
 void matrix_print(matrix* mat) {
 	for (int32_t i = 1; i <= mat->rows; i++) {
 		printf("[ ");
@@ -36,11 +39,8 @@ void matrix_print(matrix* mat) {
 	}
 }
 
-//free any memory used in matrix storage
-void matrix_free(matrix* mat) {
-	free(mat->data);
-}
-
+//Scales each element by the scalar
+//Returns: pointer to the result
 matrix* matrix_scale(matrix* mat, double scale) {
 	matrix* res = malloc(sizeof(matrix));
 	matrix_init(res, mat->rows, mat->cols);
@@ -49,3 +49,9 @@ matrix* matrix_scale(matrix* mat, double scale) {
 	}
 	return res;
 }
+
+//free any memory used in matrix storage
+void matrix_free(matrix* mat) {
+	free(mat->data);
+}
+

@@ -3,7 +3,7 @@ Basically a clone of MatLab for practice in C and learning some stable algorithm
 
 1. COMPILING
 
-To compile, run the command
+	To compile, run the command
 	
 	$gcc -o [executable_name] -std=c99 -Wall main.c matrix_unary.c matrix_binary.c frontend.c
 
@@ -32,6 +32,19 @@ To compile, run the command
 
 			First, the right hand side is evaluated, and then stores this value into the			    
 			left hand side.  It will be invalid syntax if the dimensions do not match.
+	
+		v. [variable_name][row_index][column_index] = [value]
+
+			Stores value into the variable at the specified location.  Again, spacing
+			should not matter at all.  That is, all the following are equivalent:
+			
+			"A[2][1] = 5"
+			"A [ 2 ][1] =  5"
+			"A   [2]   [1]=5"
+	
+		vi. exit
+		
+			Performs a clean exit of the program.  Frees any allocated memory.
 
 	b. OTHER RESTRICTIONS AND NOTES
 
@@ -56,7 +69,7 @@ To compile, run the command
 		iv.  Output can be supressed in any function by including a semicolon in your input.
 		     Note: by default, defining new variables will print the matrix of interest to stdout.
 		    
- 		     	A semicolon anywhere in the input will work, for example:
+ 			A semicolon anywhere in the input will work, for example:
 			
 			"varA = varB;    -- Good use of semicolon
 			"var;A=   varB"  -- I would strongly suggest not doing this.  It looks bad.

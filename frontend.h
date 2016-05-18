@@ -74,6 +74,8 @@ char** variable_names();
 //Returns: pointer to that matrix, or NULL if it doesn't exist.
 matrix* variable_get_matrix(char* name);
 
+//Deallocate any memory allocated to vh.
+void variable_free();
 
 //////////////////////////////////
 // User Input Functions
@@ -104,6 +106,12 @@ bool variable_add(matrix* mat, char* name);
 //returns the result for posterity.
 matrix* variable_evaluate(char* newname, char* n1, char* op1, char* n2);
 
+//Handles instructions of form "A[2][3] = 4" which stores 4 in the 2nd
+//row, third column of defined matrix A.  If not suppress, it prints the
+//output.
+//Returns: true if instruction is well-structured, A is defined, and has
+//the appropriate dimensions.
+bool variable_setelem(char* name, char* ind1, char* ind2, char* elem);
 
 //////////////////////////////////
 // Helper / Check Functions

@@ -84,9 +84,10 @@ int main() {
 		fgets(input, MAX_INPUT_SIZE, stdin);
 		bool syntax_check = parse(input);
 		if (!syntax_check) {
-			printf("INVALID SYNTAX\n");
+			printf("-- INVALID SYNTAX\n");
 		}
 	}
+	variable_free();
 
 	return 1;
 }
