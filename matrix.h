@@ -43,6 +43,15 @@ matrix* matrix_scale(matrix* mat, double scale);
 //free any memory used in matrix storage
 void matrix_free(matrix* mat);
 
+//Returns a pointer to a matrix object which is a shallow copy to the original matrix
+//So matrix_segment(&A, 3, 5, 2, 4) returns a pointer to a matrix which is a shallow copy of 
+//rows 3-5, columns 2-4, both inclusive.
+//Returns: Pointer to shallow copy, or Null if the indices are outside the range of the size of A
+matrix* matrix_segment(matrix* mat, uint32_t rStart, uint32_t rEnd, uint32_t cStart, uint32_t cEnd);
+
+//makes a deep copy of the target of mat
+matrix* matrix_copy(matrix* mat);
+
 
 ///////////////////////////////////
 // Functions in matrix_binary.c

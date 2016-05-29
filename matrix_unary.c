@@ -55,3 +55,13 @@ void matrix_free(matrix* mat) {
 	free(mat->data);
 }
 
+//Returns a pointer to a matrix object which is a shallow copy to the original matrix
+//So matrix_segment(&A, 3, 5, 2, 4) returns a pointer to a matrix which is a shallow copy of 
+//rows 3-5, columns 2-4, both inclusive.
+//Returns: Pointer to shallow copy, or Null if the indices are outside the range of the size of A
+matrix* matrix_segment(matrix* mat, uint32_t rStart, uint32_t rEnd, uint32_t cStart, uint32_t cEnd) {
+	matrix* res = malloc(sizeof(matrix));
+	matrix_init(res, rEnd - rStart + 1, cEnd - cStart + 1);
+
+}
+

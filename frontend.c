@@ -8,7 +8,7 @@ variable_holder* vhp = &vh;
 char var_char_disallowed[NUM_DISALLOWED] = {'[',']','0','1','2','3','4','5','6','7','8','9'};
 
 //Operators currently defined
-char operators[NUM_OPERATORS] = {'+', '-', '*', '='};
+char operators[NUM_OPERATORS] = {'+', '-', '*', '=', '(', ')'};
 
 bool suppress;
 
@@ -35,11 +35,30 @@ char** variable_names() {
 //Retrieves the matrix corresponding to a given name in memory.
 //Returns: pointer to that matrix, or NULL if it doesn't exist.
 matrix* variable_get_matrix(char* name) {
-	for (int i = 0; i < vhp->size; i++) {
-		if (strcmp(variable_names()[i], name) == 0) {
-			return variable_mats()[i];
+	int len = strlen(name);
+	char* indexHolder = calloc(len, sizeof(char));
+	int digitsRead = 0;
+	int numIndices = 0;
+	for (int i = 0; i < len; i++) {
+		if ('0' <= name[i] && name[i] <= '9') {
+			indexHolder[digitsRead] = name[i];
+			digitsRead++;
+			name[i] = '\0';
+		}
+		else if (name[i] == '$') {
+			numIndices++;
+			indexHolder[digitsRead] = '\0';
+			digitsRead++;
 		}
 	}
+	matrix* out = malloc(sizeof(matrix));
+	for (int i = 0; i < vhp->size; i++) {
+		if (strcmp(variable_names()[i], name) == 0) {
+			out = variable_mats()[i];
+			break;
+		}
+	}
+	
 	return NULL;	
 }
 
@@ -100,11 +119,19 @@ bool parse(char* input) {
 
 	for (int i = 0; i < len; i++) {
 		//Checks if left hand side of equality is using index notation
-		if (left_hand && (input[i] == '[' || input[i] == ']') ) {
-			input[i] = ' ';
+		if (left_hand && (input[i] == '[') ) {
+			i++;
 			lh_index = true;
 		}
-		
+		if (left_hand && (input[i] == ']') ) {
+			input[i] = '$';
+			lh_index = true;
+		}
+		if (left_hand && (input[i] == ',') {
+			lh_index = true;
+			input[i] = '$';
+		}
+
 		//Suppresses output and skips over this character
 		if (input[i] == ';')
 			suppress = true;

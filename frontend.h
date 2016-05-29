@@ -26,7 +26,7 @@
 #define NUM_DISALLOWED 12
 
 //Number of operators currently defined
-#define NUM_OPERATORS 4
+#define NUM_OPERATORS 6
 
 struct variable_holder {
 	//Default containers for matrices and variable names
