@@ -36,30 +36,45 @@ char** variable_names() {
 //Returns: pointer to that matrix, or NULL if it doesn't exist.
 matrix* variable_get_matrix(char* name) {
 	int len = strlen(name);
-	char* indexHolder = calloc(len, sizeof(char));
-	int digitsRead = 0;
-	int numIndices = 0;
+	int ind1 = 0;
+	int ind2 = 0;
 	for (int i = 0; i < len; i++) {
-		if ('0' <= name[i] && name[i] <= '9') {
-			indexHolder[digitsRead] = name[i];
-			digitsRead++;
+		if (name[i] == '$') {
 			name[i] = '\0';
-		}
-		else if (name[i] == '$') {
-			numIndices++;
-			indexHolder[digitsRead] = '\0';
-			digitsRead++;
+			if (ind1 == 0)
+				ind1 = i+1;
+			else if (ind2 == 0)
+				ind2 = i+1;
+			else
+				break;
 		}
 	}
+	
+	int indices[2];
+	indices[0] = atoi(&name[ind1]);
+	indices[1] = atoi(&name[ind2]);
 	matrix* out = malloc(sizeof(matrix));
+	out = NULL;
 	for (int i = 0; i < vhp->size; i++) {
 		if (strcmp(variable_names()[i], name) == 0) {
 			out = variable_mats()[i];
 			break;
 		}
 	}
-	
-	return NULL;	
+	if (out == NULL)
+		return NULL;
+	if (indices[0] != 0) {
+		if (indices[1] != 0) {
+			return matrix_segment(out, indices[0], indices[0], indices[1], indices[1]);
+		}
+		else {
+			return matrix_segment(out, indices[0], indices[0], 1, out->cols);
+		}
+	}
+	else if (indices[1] != 0) {
+		return matrix_segment(out, 1, out->rows, indices[1], indices[1]);
+	}
+	return out;
 }
 
 //Free any memory allocated to vh.
@@ -116,22 +131,23 @@ bool parse(char* input) {
 	bool lh_index = false;
 
 	bool left_hand = true;
-
 	for (int i = 0; i < len; i++) {
 		//Checks if left hand side of equality is using index notation
 		if (left_hand && (input[i] == '[') ) {
-			i++;
+			if (i > 0 && input[i-1] == '$')
+				i++;
+			else
+				input[i] = '$';
 			lh_index = true;
-		}
+		}	
 		if (left_hand && (input[i] == ']') ) {
 			input[i] = '$';
 			lh_index = true;
 		}
-		if (left_hand && (input[i] == ',') {
+		if (left_hand && (input[i] == ',') ){
 			lh_index = true;
 			input[i] = '$';
 		}
-
 		//Suppresses output and skips over this character
 		if (input[i] == ';')
 			suppress = true;
@@ -181,9 +197,9 @@ bool parse(char* input) {
 	int args = wrds_index;
 	bool output = false;
 
-	for(int i =0; i<args; i++)	printf("word \"%s\"\n", words[i]);
-
-
+	for(int i =0; i<args; i++)	
+		printf("word \"%s\"\n", words[i]);
+	
 	if (args == 4 && strcmp(DEFINE, words[0]) == 0) {
 		output = define(&(words[1]));
 	}

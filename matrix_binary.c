@@ -35,8 +35,10 @@ matrix* matrix_add(matrix* m1, matrix* m2) {
 	matrix_init(res, m1->rows, m1->cols);
 	
 	//perform addition
-	for (int i = 0; i < m1->size; i++) {
-		res->data[i] = m1->data[i] + m2->data[i];
+	for (uint32_t r = 1; r <= m1->rows; r++) {
+		for (uint32_t c = 1; c <= m1->cols; c++) {
+			*matrix_elem(res, r, c) = (*matrix_elem(m1, r, c)) + (*matrix_elem(m2, r, c));
+		}
 	}
 	return res;
 }
@@ -54,8 +56,10 @@ matrix* matrix_sub(matrix* m1, matrix* m2) {
 	matrix_init(res, m1->rows, m1->cols);
 
 	//perform subtraction
-	for (int i = 0; i < m1->size; i++) {
-		res->data[i] = m1->data[i] - m2->data[i];
+	for (uint32_t r = 1; r <= m1->rows; r++) {
+		for (uint32_t c = 1; c <= m1->cols; c++) {
+			*matrix_elem(res, r, c) = (*matrix_elem(m1, r, c)) - (*matrix_elem(m2, r, c));
+		}
 	}
 	return res;
 }
@@ -69,10 +73,13 @@ bool matrix_compare(matrix* m1, matrix* m2, double tol) {
 		return false;
 	}
 	//Checks element-wise if any difference is greater than tolerance
-	for (int i = 0; i < m1->size; i++) {
-		double comp = m1->data[i] - m2->data[i];
-		if ((-tol > comp) || (comp > tol)) {
-			return false;
+	double comp;
+	for (uint32_t r = 1; r <= m1->rows; r++) {
+		for (uint32_t c = 1; c <= m1->cols; c++) {
+			comp = (*matrix_elem(m1, r, c)) - (*matrix_elem(m2, r, c));
+			if ((-tol > comp) || (comp > tol)) {
+				return false;
+			}
 		}
 	}
 	return true;

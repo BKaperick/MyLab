@@ -42,6 +42,25 @@ Basically a clone of MatLab for practice in C and learning some stable algorithm
 			"A [ 2 ][1] =  5"
 			"A   [2]   [1]=5"
 	
+			More sophisticated indexing is also possible. Consider the following:
+
+			A = [1 2 3 4 ]
+			    [2 4 6 8 ]
+			    [3 6 9 12]
+			
+			Then, we can refer to segments of it via:
+
+			A[3][2] = A[3,2] = 6
+			A[2][]  = A[2]   = [2 4 6 8]
+			A[][1]  = A[,1]  = [1]
+					   [2]
+					   [3]
+
+			Exercise caution for right now, spacing issues are not fully resolved.
+			Consider "A[3, 2]", "A[ ][1]", "A[2] [2]", "A [2][2]" and other similar cases
+			to be undefined until this section is removed from the README.
+						
+
 		vi. exit
 		
 			Performs a clean exit of the program.  Frees any allocated memory.

@@ -11,7 +11,7 @@ struct matrix {
 	uint32_t rows;
 	uint32_t cols;
 	uint64_t size;
-	double* data;
+	double** data;
 	bool sparse;
 	bool square;
 };
