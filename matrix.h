@@ -49,9 +49,6 @@ void matrix_free(matrix* mat);
 //Returns: Pointer to shallow copy, or Null if the indices are outside the range of the size of A
 matrix* matrix_segment(matrix* mat, uint32_t rStart, uint32_t rEnd, uint32_t cStart, uint32_t cEnd);
 
-//makes a deep copy of the target of mat
-matrix* matrix_copy(matrix* mat);
-
 
 ///////////////////////////////////
 // Functions in matrix_binary.c
@@ -73,6 +70,10 @@ matrix* matrix_sub(matrix* m1, matrix* m2);
 //checks if two matrices are equal within a certain tolerance
 //Returns: m1 == m2
 bool matrix_compare(matrix* m1, matrix* m2, double tol);
+
+//Makes a deep copy of from, and stores it in to
+//Returns: matrices are same dimension
+bool matrix_copy(matrix* from, matrix* to);
 
 #endif
 

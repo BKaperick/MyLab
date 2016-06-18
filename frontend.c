@@ -1,5 +1,6 @@
 #include "matrix.h"
 #include "frontend.h"
+#include "equations.h"
 
 variable_holder vh = {.size = 0, .space = INITIAL_SIZE, .names_ext = NULL, .mats_ext = NULL};
 variable_holder* vhp = &vh;
@@ -44,7 +45,7 @@ matrix* variable_get_matrix(char* name) {
 			if (ind1 == 0)
 				ind1 = i+1;
 			else if (ind2 == 0)
-				ind2 = i+1;
+				 ind2 = i+1;
 			else
 				break;
 		}
@@ -126,26 +127,21 @@ bool parse(char* input) {
 
 	//True only if a semicolon is in the input, suppresses output
 	suppress = false;
+	
+	//left_hand = true;
 
-	//checks if left hand has index notation used.
-	bool lh_index = false;
-
-	bool left_hand = true;
 	for (int i = 0; i < len; i++) {
 		//Checks if left hand side of equality is using index notation
-		if (left_hand && (input[i] == '[') ) {
+		if (input[i] == '[') {
 			if (i > 0 && input[i-1] == '$')
 				i++;
 			else
 				input[i] = '$';
-			lh_index = true;
 		}	
-		if (left_hand && (input[i] == ']') ) {
+		if (input[i] == ']') {
 			input[i] = '$';
-			lh_index = true;
 		}
-		if (left_hand && (input[i] == ',') ){
-			lh_index = true;
+		if (input[i] == ','){
 			input[i] = '$';
 		}
 		//Suppresses output and skips over this character
@@ -178,8 +174,8 @@ bool parse(char* input) {
 				w_index++;
 			}
 			
-			if (input[i] == '=')
-				left_hand = false;
+			//if (input[i] == '=')
+				//left_hand = false;
 			//Also save operator as a separate word
 			word[w_index] = input[i];
 			word[w_index+1] = '\0';
@@ -197,13 +193,20 @@ bool parse(char* input) {
 	int args = wrds_index;
 	bool output = false;
 
+	//For debugging purposes
 	for(int i =0; i<args; i++)	
 		printf("word \"%s\"\n", words[i]);
 	
+	//Instantiating a new matrix
 	if (args == 4 && strcmp(DEFINE, words[0]) == 0) {
 		output = define(&(words[1]));
 	}
-	else if (args == 2 && strcmp(words[0], PRINT) == 0) {
+	
+	//Print matrix
+	//Can probably be replaced by simply entering just the matrix name?
+	else if (args == 1)
+		variable_print(words[0]);
+	else if (strcmp(words[0], PRINT) == 0) {
 		if (strcmp(words[1], "all") == 0) {
 			variable_printall();
 			output = true;
@@ -211,26 +214,37 @@ bool parse(char* input) {
 		else
 			output = variable_print(words[1]);
 	}
-	else if (args >= 3 && strcmp(words[1], "=") == 0) {
-		//matrix* lhand = variable_get_matrix(words[0]);
-		if (only_valid_varchars(words[0])) {
-			if (args == 3) {
-				output = variable_add(variable_get_matrix(words[2]), words[0]);
-			}
-			else if (args == 5) {
-				output = (bool) variable_evaluate(words[0], words[2], words[3], words[4]);
-			}
-		}
 
-	}
-	else if (lh_index) {
-			if (args == 5) {
-				
-				output = variable_setelem(words[0], words[1], words[2], words[4]);
-				
+	//Store evaluation of RHS into LHS.
+	else if (strcmp(words[1], "=") == 0) {
+		//Left hand side can only be a valid matrix name or segment
+		matrix* lhMatrix = variable_get_matrix(words[0]);
+		if (!lhMatrix) {
+			printf("LEFT HAND SIDE MUST BE VALID VARIABLE REFERENCE ");
+		}
+		else if (args >= 3) {
+			printf("storing \n");
+			output = evaluateEq(&(words[2]), args-2, lhMatrix);
+			matrix_print(lhMatrix);
+			if (!output) {
+				printf("RIGHT HAND SIDE IS INVALID ");
 			}
 		}
-		//add in other functionality here
+		else {
+			printf("CANNOT END AN EXPRESSION WITH '=' ");
+		}	
+	}
+
+	//Calculate and print result, but don't save it
+	else {
+		matrix* temp = malloc(sizeof(matrix));
+		printf("\nevaluating\n");
+		output = evaluateEq(words, args, temp);
+		matrix_print(temp);
+		free(temp);
+	}
+
+	//add in other functionality here
 	//free(words);
 	//free(word);
 	return output;

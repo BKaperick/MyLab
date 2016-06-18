@@ -1,6 +1,5 @@
 #include "matrix.h"
 
-
 //Multiplies first two arguments, returns pointer to result
 //Should have sparse option
 //Returns: result, or null pointer if dimensions do not add up.
@@ -84,3 +83,24 @@ bool matrix_compare(matrix* m1, matrix* m2, double tol) {
 	}
 	return true;
 }
+
+
+bool matrix_copy(matrix* from, matrix* to) {
+	//Only include this branch if we decide it is acceptable for 'to' to be uninitiated on function call.
+	//I don't see any reason that this should not be the case.
+	if (!to->data) {
+		matrix_init(to, from->rows, from->cols);
+	}
+	//from->cols;
+	if (from->cols != to->cols || from->rows != to->rows) {
+		printf("dimension mismatch! (%d, %d) vs. (%d, %d)\n", from->rows, from->cols, to->rows, to->cols);
+		return false;
+	}
+	for (uint32_t r = 0; r < from->rows; r++) {
+		for (uint32_t c = 0; c < from->cols; c++) {
+			to->data[r][c] = from->data[r][c];
+		}
+	}
+	return true;
+}
+

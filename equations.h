@@ -1,11 +1,12 @@
-#ifndef MATRIX_H
-#define MATRIX_H
+#ifndef EQUATIONS_H
+#define EQUATIONS_H
 
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdio.h>
+
 
 //Establishes order of operations
 // By standard: '*' > '+' = '-'
@@ -28,6 +29,7 @@ char** postfix(char** input, int len);
 matrix* operate(matrix* val1, matrix* val2, char* op);
 
 //Evaluate array of strings in postfix ordering
-matrix* evaluateEq(char** eq, int len);
+//Returns: success of parsing string.  True if its a valid equation
+bool evaluateEq(char** eq, int len, matrix* outputPtr);
 
 #endif

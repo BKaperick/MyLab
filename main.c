@@ -78,6 +78,13 @@ int main() {
 	tests += test_matrix_add_subtract(.01);
 	printf("%d / %d tests passed\n", tests, 3);
 
+	//TESTING
+	//parse("define A 2 2\n");
+	//parse("define B 2 2\n");
+	//parse("define C 2 2\n");
+	//parse("define D 2 2\n");
+	//parse("A+B+C\n");
+
 	char input[MAX_INPUT_SIZE];// = malloc(INPUT_SIZE * sizeof(char));
 	while (strcmp("exit\n", input) != 0) {
 		printf("> ");

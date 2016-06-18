@@ -6,6 +6,7 @@
 
 #include "matrix.h"
 #include "frontend.h"
+#include "equations.h"
 
 //>0 if c1 > c2
 int comp(char* c1, char* c2) {
@@ -28,6 +29,23 @@ bool paren(char* c) {
 	return (strcmp(c, "(") == 0 || strcmp(c, ")") == 0);
 }
 
+
+void print_input(char** input, int len) {
+	printf("[");
+	for (int i = 0; i < len; i++) {
+		printf("%s, ", input[i]);
+	}
+	printf("]\n");
+}
+
+void print_all_inds(char** input, int in_ind, char** output, int out_ind, char** deck, int deck_ind) {
+	printf("v------------------------------\n");
+	print_input(input, in_ind);
+	print_input(output, out_ind);
+	print_input(deck, deck_ind);
+	printf("^------------------------------\n");
+}
+
 char** postfix(char** input, int len) {
 	char* c = input[0];
 	char** output = calloc(len, sizeof(char*));
@@ -36,8 +54,15 @@ char** postfix(char** input, int len) {
 	char** deck = calloc(len, sizeof(char*));
 	int deck_ind = 0;
 	while ( c && in_ind <= len) {
-		//printf("\tchar \"%c\"\n", c);
+		//if (in_ind == len && c == input[len-1]) {
+		//	output[out_ind] = c;
+		//	return output;
+		//}
+		printf("\tlen: %d\n", len);
+		print_all_inds(input, in_ind, output, out_ind, deck, deck_ind);
+		printf("\t\"%s\"\n", c);
 		if (op(c)) {
+			printf("\t+ == %s\n", c);
 			//printf("\t\toperator put on deck\n");
 			//always just add operators to the deck
 			deck[deck_ind] = c;
@@ -85,27 +110,29 @@ char** postfix(char** input, int len) {
 			c = input[in_ind];
 			in_ind++;
 		}
+		
+		//Variable name or constant
 		else {
+			output[out_ind] = c;
+			out_ind++;
+
 			//something on deck
 			if (deck_ind > 0) {
 				//if current operator on deck has higher-than-or-equal precedence than next operator
+				print_input(input, in_ind);
+				printf("ref: %d, [%s]\n", in_ind, input[in_ind]);
+				//printf("\t0 == %d, B == %s\n",comp(deck[deck_ind-1], input[in_ind])); 
 				if (comp(deck[deck_ind-1], input[in_ind]) >= 0) {
-
-					//add current char to output
-					output[out_ind] = c;
-					out_ind++;
-					
-					//dump deck onto the output
-					while (deck_ind > 0 && comp(deck[out_ind], input[in_ind]) >= 0) {
+					printf("+ operators are equal\n");
+					printf("OUTPUT: \"%s\"\n", output);	
+					//while the next deck element is at least the priority of the next operator
+					while (deck_ind > 0 && comp(deck[deck_ind-1], input[in_ind]) >= 0) {
+						printf("%d > 0, %s >= %s\n", deck_ind, deck[out_ind], input[in_ind]);
+						//Add top of deck to output
+						output[out_ind] = deck[deck_ind-1];
 						deck_ind--;
-						output[out_ind] = deck[deck_ind];
 						out_ind++;
 					}
-				}
-				//next operator has strictly higher precedence
-				else {			
-					output[out_ind] = c;
-					out_ind++;
 				}
 				
 				c = input[in_ind];
@@ -114,10 +141,9 @@ char** postfix(char** input, int len) {
 			//if no operators on deck
 			else {
 				//add current var into output
-				output[out_ind] = c;
+				printf("\tA = %s\n", c);
 				c = input[in_ind];
 				in_ind++;
-				out_ind++;
 			}
 		}
 	}
@@ -143,16 +169,16 @@ matrix* operate(matrix* val1, matrix* val2, char* op) {
 		return NULL;
 }
 
-matrix* evaluateEq(char** eq, int len) {
-
+bool evaluateEq(char** eq, int len, matrix* outputPtr) {
+	
+	eq = postfix(eq, len);
+	printf("survived postfix!\n");
+	printf("[%s]\n", eq[0]);
 	//Stack on which variables are temporarily stored
 	matrix** varstack = calloc(len, sizeof(matrix*));
 	
 	//Index in the equation being evaluated
 	int v_ind = 0;
-
-	//Outputted value
-	matrix* outputPtr = malloc(sizeof(matrix));
 
 	bool firstVar = true;
 
@@ -163,7 +189,7 @@ matrix* evaluateEq(char** eq, int len) {
 		if (op(eq[i])) {
 			//Perform operation on two top values of stack
 			matrix* temp = operate(varstack[v_ind-2], varstack[v_ind-1], eq[i]);
-			outputPtr = matrix_add(temp, outputPtr);
+			//outputPtr = matrix_add(temp, outputPtr);
 			
 			//Move stack pointer one place down
 			v_ind --;
@@ -173,16 +199,36 @@ matrix* evaluateEq(char** eq, int len) {
 		//If the character is a variable name
 		else {
 			matrix* v = variable_get_matrix(eq[i]);
+
+			//Try to make it into a scalar if the variable does not exist
+			if (v == NULL) {
+				v = malloc(sizeof(matrix));
+				double elem = strtod(eq[i], NULL);
+				printf("elem %f\n", elem);
+				matrix_init(v,1,1);
+				v->data[0] = &elem;
+			}
 			if (firstVar) {
-				matrix_init(outputPtr, v->rows, v->cols);
+				printf("firstVar\n");
 				firstVar = false;
+				
+				//it's a simple assignment.
+				if (len == 1) {
+					printf("copying\n");
+					return matrix_copy(v, outputPtr);
+				}
+			
 			}
 			//Simply add character to stack
 			varstack[v_ind] = v;
 			v_ind++;
 		}
 	}
+	
+	//Copy final answer over to output
+	matrix_copy(varstack[0], outputPtr);
+
 	//Stack is no longer needed
 	free(varstack);
-	return outputPtr;
+	return true;
 }
