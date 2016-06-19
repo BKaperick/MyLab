@@ -39,6 +39,8 @@ matrix* variable_get_matrix(char* name) {
 	int len = strlen(name);
 	int ind1 = 0;
 	int ind2 = 0;
+	
+	//Case where the name is referencing a submatrix
 	for (int i = 0; i < len; i++) {
 		if (name[i] == '$') {
 			name[i] = '\0';
@@ -50,12 +52,13 @@ matrix* variable_get_matrix(char* name) {
 				break;
 		}
 	}
-	
 	int indices[2];
 	indices[0] = atoi(&name[ind1]);
 	indices[1] = atoi(&name[ind2]);
 	matrix* out = malloc(sizeof(matrix));
 	out = NULL;
+	
+	//Checking if variable name is stored in memory
 	for (int i = 0; i < vhp->size; i++) {
 		if (strcmp(variable_names()[i], name) == 0) {
 			out = variable_mats()[i];

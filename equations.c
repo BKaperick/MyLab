@@ -56,7 +56,7 @@ char** postfix(char** input, int len) {
 	char** deck = calloc(len, sizeof(char*));
 	int deck_ind = 0;
 	while ( c && in_ind <= len) {
-		print_all_inds(input, in_ind, output, out_ind, deck, deck_ind);
+		//print_all_inds(input, in_ind, output, out_ind, deck, deck_ind);
 		if (op(c)) {
 			//always just add operators to the deck
 			deck[deck_ind] = c;
@@ -81,11 +81,11 @@ char** postfix(char** input, int len) {
 				else
 					chunkLen++;
 				if (depth == 0) {
-					skipAhead = ind;
+					skipAhead = ind - in_ind + 1;
 					break;
 				}
 			}
-			chunk = postfix(&input[in_ind], skipAhead);
+			chunk = postfix(&input[in_ind], skipAhead-1);
 			for (int i = 0; i < chunkLen; i++) {
 				output[out_ind] = chunk[i];
 				out_ind++;
@@ -118,10 +118,13 @@ char** postfix(char** input, int len) {
 			c = input[in_ind];
 			in_ind++;
 		}
+		if (in_ind > len) {
+			break;
+		}
 	}
 	in_ind--;
-	printf("(%d, %d, %d)\n", in_ind, out_ind, deck_ind);
-	print_all_inds(input, in_ind, output, out_ind, deck, deck_ind);
+	//printf("(%d, %d, %d)\n", in_ind, out_ind, deck_ind);
+	//print_all_inds(input, in_ind, output, out_ind, deck, deck_ind);
 	
 	if (deck_ind > 0) {
 		printf("should never be called\n");
@@ -146,11 +149,15 @@ matrix* operate(matrix* val1, matrix* val2, char* op) {
 		return NULL;
 }
 
-bool evaluateEq(char** eq, int len, matrix* outputPtr) {
-	
+bool evaluateEq(char** eq, int len, matrix* outputPtr) {	
 	eq = postfix(eq, len);
+	for (int i = 0; i < len; i++) {
+		if (!(eq[i])) {
+			len = i;
+		}
+	}
 	printf("survived postfix!\n");
-	printf("[%s]\n", eq[0]);
+	print_input(eq, len);
 	//Stack on which variables are temporarily stored
 	matrix** varstack = calloc(len, sizeof(matrix*));
 	
@@ -181,17 +188,14 @@ bool evaluateEq(char** eq, int len, matrix* outputPtr) {
 			if (v == NULL) {
 				v = malloc(sizeof(matrix));
 				double elem = strtod(eq[i], NULL);
-				printf("elem %f\n", elem);
 				matrix_init(v,1,1);
-				v->data[0] = &elem;
+				v->data[0][0] = elem;
 			}
 			if (firstVar) {
-				printf("firstVar\n");
 				firstVar = false;
 				
 				//it's a simple assignment.
 				if (len == 1) {
-					printf("copying\n");
 					return matrix_copy(v, outputPtr);
 				}
 			

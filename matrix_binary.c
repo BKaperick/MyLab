@@ -4,12 +4,26 @@
 //Should have sparse option
 //Returns: result, or null pointer if dimensions do not add up.
 matrix* matrix_mult(matrix* m1, matrix* m2) {
-	//Check dimension mismatch
+	
+	//Scalar multiple case
+	if (m1->size == 1) {
+		matrix *res = malloc(sizeof(matrix));
+		matrix_init(res, m2->rows, m2->cols);
+		for (uint32_t i = 1; i <= m2->rows; i++) {
+			for (uint32_t j = 1; j <= m2->cols; j++) {
+				matrix_insert(res, i,j, *matrix_elem(m1,1,1)*(*matrix_elem(m2,i,j)));
+			}
+		}
+		return res;
+	}
+
+	//Check dimensionality
 	if (m1->cols != m2->rows)
 		return NULL;
 	matrix *res = malloc(sizeof(matrix));
 	matrix_init(res, m1->rows, m2->cols);
 	double val;
+							
 	for (uint32_t i = 1; i <= m1->rows; i++) {
 		for (uint32_t j = 1; j <= m2->cols; j++) {
 			val = 0.0;
