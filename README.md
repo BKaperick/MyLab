@@ -21,7 +21,10 @@ Basically a clone of MatLab for practice in C and learning some stable algorithm
 
 			Prints out the variable name and contents of that matrix.  Note, if you type
 			"all" instead of a valid variable name, it will return all variable names 
-			and contents stored in memory.	
+			and contents stored in memory.
+
+			If just printing one variable (instead of "all"), you can skip the "print" key word.
+			i.e., to print element X[i,j], simply type ">X[i,j]".	
 		 
 		iii. [variable_name] = [variable_name]
 
@@ -33,11 +36,15 @@ Basically a clone of MatLab for practice in C and learning some stable algorithm
 			First, the right hand side is evaluated, and then stores this value into the			    
 			left hand side.  It will be invalid syntax if the dimensions do not match.
 	
-		v. [variable_name][row_index][column_index] = [value]
+			If the left hand side is not explicitly given, the result of the right hand side
+			will be stored in a variable "temp".
 
-			Stores value into the variable at the specified location.  Again, spacing
-			should not matter at all.  That is, all the following are equivalent:
-			
+			Examples of valid syntax are:
+
+			"A = 2*B + 3*(C + D)"
+			"5+2*(3-5)"
+			"A = 2*A"
+			"A[2][3] = 5 + 3 + C[2,3]"
 			"A[2][1] = 5"
 			"A [ 2 ][1] =  5"
 			"A   [2]   [1]=5"
@@ -61,6 +68,25 @@ Basically a clone of MatLab for practice in C and learning some stable algorithm
 			to be undefined until this section is removed from the README.
 						
 
+		vii. run
+			
+			Keyword used to run text files.  Each line of the file should be a valid mylab
+			command.  A syntax error will be returned if the file does not exist, or is
+			not properly formatted.  The preferred file ending for mylab files is ".myl",
+			but any text file will run.
+
+			If file.myl contains:
+			"""
+			define X 2 2;
+			X = 2*X
+			"""
+			Then, the command ">run file.myl" initializes a 2x2 matrix X, and prints the 
+			reassignment,
+
+			[2.0000 0.0000]
+			[0.0000 2.0000]		
+
+
 		vi. exit
 		
 			Performs a clean exit of the program.  Frees any allocated memory.
@@ -73,7 +99,7 @@ Basically a clone of MatLab for practice in C and learning some stable algorithm
 		
 		ii. Variable names cannot exactly match any of the following:
 			
-			"all"	
+			"all", "temp"	
 		
 		iii. Any white space in between variable names, operators, etc. can be any number of
 	             spaces without issue.

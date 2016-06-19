@@ -196,19 +196,32 @@ bool parse(char* input) {
 	int args = wrds_index;
 	bool output = false;
 
-	//For debugging purposes
-	for(int i =0; i<args; i++)	
-		printf("word \"%s\"\n", words[i]);
+	//Print out all words for debugging purposes
+	//for(int i =0; i<args; i++)	
+	//	printf("word \"%s\"\n", words[i]);
 	
 	//Instantiating a new matrix
 	if (args == 4 && strcmp(DEFINE, words[0]) == 0) {
 		output = define(&(words[1]));
 	}
 	
+	//Running file
+	if (args == 2 && strcmp(RUN, words[0]) == 0) {
+		char line[MAX_INPUT_SIZE];
+		FILE *fp = fopen(words[1], "r");
+		while (fgets(line, sizeof line, fp)) {
+			output = true;
+			parse(line);
+		}
+		if (!output)
+			printf("FILE DOES NOT EXIST ");
+	}
+
 	//Print matrix
 	//Can probably be replaced by simply entering just the matrix name?
-	else if (args == 1)
-		variable_print(words[0]);
+	else if (args == 1) {
+		output = variable_print(words[0]);	
+	}
 	else if (strcmp(words[0], PRINT) == 0) {
 		if (strcmp(words[1], "all") == 0) {
 			variable_printall();
@@ -241,10 +254,9 @@ bool parse(char* input) {
 	//Calculate and print result, but don't save it
 	else {
 		matrix* temp = malloc(sizeof(matrix));
-		printf("\nevaluating\n");
 		output = evaluateEq(words, args, temp);
+		variable_add(temp, "temp");
 		matrix_print(temp);
-		free(temp);
 	}
 
 	//add in other functionality here
@@ -354,61 +366,6 @@ bool variable_add(matrix* mat, char* name) {
 	vhp->size++;
 	if (!suppress) variable_print(name);
 	return true;	
-}
-
-//Retrieves the matrices corresponding to n1 and n2
-//Then performs op1 on those matrices
-//then stores the result in newname
-//returns the result for posterity.
-matrix* variable_evaluate(char* newname, char* n1, char* op, char* n2) {
-	matrix* m1 = variable_get_matrix(n1);
-	matrix* m2 = variable_get_matrix(n2);
-	if (m1 == NULL || m2 == NULL) {
-		printf("MATRIX NOT DEFINED ");
-		return NULL;
-	}
-	matrix* res = malloc(sizeof(matrix));
-	if (strcmp(op, "+") == 0) {
-		res = matrix_add(m1, m2);
-	}
-	else if (strcmp(op, "*") == 0) {
-		res = matrix_mult(m1, m2);
-	}
-	else if (strcmp(op, "-") == 0) {
-		res = matrix_sub(m1, m2);
-	}
-	bool ret = variable_add(res, newname);
-	if (!ret) {
-		return NULL;
-	}
-	return res;
-}		
-
-//Handles instructions of form "A[2][3] = 4" which stores 4 in the 2nd
-//row, third column of defined matrix A.  If not suppress, it prints the
-//output.
-//Returns: true if instruction is well-structured, A is defined, and has
-//the appropriate dimensions.
-bool variable_setelem(char* name, char* ind1, char* ind2, char* elem) {
-	matrix* m = variable_get_matrix(name);
-	if (m == NULL) {
-		printf("VARIABLE \"%s\" NOT DEFINED ", name);
-		return false;
-	}
-	uint32_t r = atoi(ind1);
-	if (r <= 0) {
-		printf("ROW INDEX NOT A POSITIVE INTEGER ");
-		return false;
-	}
-	uint32_t c = atoi(ind2);
-	if (c <= 0) {
-		printf("COLUMN INDEX NOT A POSITIVE INTEGER ");
-		return false;
-	}
-	double val = strtod(elem, NULL);
-	matrix_insert(m,r,c,val);
-	matrix_print(m);
-	return true;
 }
 
 

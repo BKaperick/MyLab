@@ -156,8 +156,6 @@ bool evaluateEq(char** eq, int len, matrix* outputPtr) {
 			len = i;
 		}
 	}
-	printf("survived postfix!\n");
-	print_input(eq, len);
 	//Stack on which variables are temporarily stored
 	matrix** varstack = calloc(len, sizeof(matrix*));
 	
@@ -193,7 +191,7 @@ bool evaluateEq(char** eq, int len, matrix* outputPtr) {
 			}
 			if (firstVar) {
 				firstVar = false;
-				
+
 				//it's a simple assignment.
 				if (len == 1) {
 					return matrix_copy(v, outputPtr);
@@ -208,7 +206,6 @@ bool evaluateEq(char** eq, int len, matrix* outputPtr) {
 	
 	//Copy final answer over to output
 	matrix_copy(varstack[0], outputPtr);
-
 	//Stack is no longer needed
 	free(varstack);
 	return true;

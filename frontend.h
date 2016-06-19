@@ -13,6 +13,9 @@
 //Command to define a new variable
 #define DEFINE "define"
 
+//Command to run a file
+#define RUN "run"
+
 //Command to print a variable
 #define PRINT "print"
 
@@ -77,6 +80,7 @@ matrix* variable_get_matrix(char* name);
 //Deallocate any memory allocated to vh.
 void variable_free();
 
+
 //////////////////////////////////
 // User Input Functions
 //////////////////////////////////
@@ -100,18 +104,6 @@ bool define(char** input);
 //Returns: success of operation
 bool variable_add(matrix* mat, char* name);
 
-//Retrieves the matrices corresponding to n1 and n2
-//Then performs op1 on those matrices
-//then stores the result in newname
-//returns the result for posterity.
-matrix* variable_evaluate(char* newname, char* n1, char* op1, char* n2);
-
-//Handles instructions of form "A[2][3] = 4" which stores 4 in the 2nd
-//row, third column of defined matrix A.  If not suppress, it prints the
-//output.
-//Returns: true if instruction is well-structured, A is defined, and has
-//the appropriate dimensions.
-bool variable_setelem(char* name, char* ind1, char* ind2, char* elem);
 
 //////////////////////////////////
 // Helper / Check Functions
