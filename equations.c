@@ -32,8 +32,10 @@ bool paren(char* c) {
 
 void print_input(char** input, int len) {
 	printf("[");
-	for (int i = 0; i < len; i++) {
-		printf("%s, ", input[i]);
+	if (len > 0) {
+		for (int i = 0; i < len; i++) {
+			printf("%s, ", input[i]);
+		}
 	}
 	printf("]\n");
 }
@@ -54,16 +56,8 @@ char** postfix(char** input, int len) {
 	char** deck = calloc(len, sizeof(char*));
 	int deck_ind = 0;
 	while ( c && in_ind <= len) {
-		//if (in_ind == len && c == input[len-1]) {
-		//	output[out_ind] = c;
-		//	return output;
-		//}
-		printf("\tlen: %d\n", len);
 		print_all_inds(input, in_ind, output, out_ind, deck, deck_ind);
-		printf("\t\"%s\"\n", c);
 		if (op(c)) {
-			printf("\t+ == %s\n", c);
-			//printf("\t\toperator put on deck\n");
 			//always just add operators to the deck
 			deck[deck_ind] = c;
 			deck_ind++;
@@ -72,41 +66,40 @@ char** postfix(char** input, int len) {
 		}
 		else if (paren(c)) {
 			int depth = 1;
-			char** chunk;// = calloc(len - in_ind, sizeof(char));
-			int len = 0;
-			int chunk_len = 0;
-			char* exp = input[in_ind];
-			while (depth >= 1) {
-				if (strcmp(exp, "(") == 0)
+			char** chunk;
+			int chunkLen = 0;
+			//number of spaces to skip in_ind ahead
+			int skipAhead = 1;
+			for (int ind = in_ind; ind < len; ind++) {
+				char* current = input[ind];
+				if (strcmp(current, "(") == 0) {
 					depth++;
-				else if (strcmp(exp, ")") == 0)
-					depth--;
-				if (depth != 0) {
-				len++;
-				exp = input[in_ind + len];
 				}
-				if (!paren(exp))
-					chunk_len++;
+				else if (strcmp(current, ")") == 0) {
+					depth--;
+				}
+				else
+					chunkLen++;
+				if (depth == 0) {
+					skipAhead = ind;
+					break;
+				}
 			}
-			chunk = postfix(&input[in_ind], len);
-			//append chunk to output
-			for (int i = 0; i <= chunk_len; i++) {
+			chunk = postfix(&input[in_ind], skipAhead);
+			for (int i = 0; i < chunkLen; i++) {
 				output[out_ind] = chunk[i];
 				out_ind++;
 			}
-			//push index past parentheses, plus 1 for each parentheses.
-			in_ind += 1 + len;
+			in_ind += skipAhead;
+			printf("in_ind = %d\nchunkLen = %d\nskipAhead = %d\n", in_ind, chunkLen, skipAhead);
 			//Add in everything relevant onto deck and output from within the parentheses
 			//while something on deck, order of ops still in favor
-			while (deck_ind > 0 && comp(deck[out_ind], input[in_ind]) >= 0) {
+			while (deck_ind > 0 && (in_ind == len || comp(deck[deck_ind-1], input[in_ind])) >= 0) {
 				//put top of deck on output
+				output[out_ind] = deck[deck_ind-1];
 				deck_ind--;
-				output[out_ind] = deck[deck_ind];
 				out_ind++;
 			}
-			//printf("\tchunk \"%s\" -> output \"%s\"\n", chunk, output);
-			//printf("\tdeck \"%s\"\n", deck);
-			//printf("out(%d) in(%d) deck(%d)\n", out_ind, in_ind, deck_ind);
 			c = input[in_ind];
 			in_ind++;
 		}
@@ -115,43 +108,27 @@ char** postfix(char** input, int len) {
 		else {
 			output[out_ind] = c;
 			out_ind++;
-
-			//something on deck
-			if (deck_ind > 0) {
-				//if current operator on deck has higher-than-or-equal precedence than next operator
-				print_input(input, in_ind);
-				printf("ref: %d, [%s]\n", in_ind, input[in_ind]);
-				//printf("\t0 == %d, B == %s\n",comp(deck[deck_ind-1], input[in_ind])); 
-				if (comp(deck[deck_ind-1], input[in_ind]) >= 0) {
-					printf("+ operators are equal\n");
-					printf("OUTPUT: \"%s\"\n", output);	
-					//while the next deck element is at least the priority of the next operator
-					while (deck_ind > 0 && comp(deck[deck_ind-1], input[in_ind]) >= 0) {
-						printf("%d > 0, %s >= %s\n", deck_ind, deck[out_ind], input[in_ind]);
-						//Add top of deck to output
-						output[out_ind] = deck[deck_ind-1];
-						deck_ind--;
-						out_ind++;
-					}
-				}
-				
-				c = input[in_ind];
-				in_ind++;
+			
+			while (deck_ind > 0 && (in_ind == len || comp(deck[deck_ind-1], input[in_ind]) >= 0)) {
+					//Add top of deck to output
+					output[out_ind] = deck[deck_ind-1];
+					deck_ind--;
+					out_ind++;
 			}
-			//if no operators on deck
-			else {
-				//add current var into output
-				printf("\tA = %s\n", c);
-				c = input[in_ind];
-				in_ind++;
-			}
+			c = input[in_ind];
+			in_ind++;
 		}
 	}
+	in_ind--;
+	printf("(%d, %d, %d)\n", in_ind, out_ind, deck_ind);
+	print_all_inds(input, in_ind, output, out_ind, deck, deck_ind);
+	
 	if (deck_ind > 0) {
 		printf("should never be called\n");
 		for (int i = deck_ind-1; i >= 0; i--) {
 			output[out_ind] = deck[i];
-			out_ind--;
+			//was -- should be ++
+			out_ind++;
 		}
 	}
 	free(deck);
