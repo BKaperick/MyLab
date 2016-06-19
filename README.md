@@ -28,7 +28,7 @@ Basically a clone of MatLab for practice in C and learning some stable algorithm
 			Assignment sets the left hand variable equal to the right hand variable.
 			Note: the left hand does not have to be defined already!
 
-		iv. [variable_name] = [variable_name] [+ / * / -] [variable_name]
+		iv. [variable_name / submatrix] = [any algebraic manipulation of variables or on-the-fly scalars]
 
 			First, the right hand side is evaluated, and then stores this value into the			    
 			left hand side.  It will be invalid syntax if the dimensions do not match.
