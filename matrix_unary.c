@@ -73,19 +73,10 @@ void matrix_free(matrix* mat) {
 //Returns: Pointer to shallow copy, or Null if the indices are outside the range of the size of A
 matrix* matrix_segment(matrix* mat, uint32_t rStart, uint32_t rEnd, uint32_t cStart, uint32_t cEnd) {
 	matrix* res = malloc(sizeof(matrix));
-	res->rows = rEnd - rStart + 1;
-	res->cols = cEnd - cStart + 1;
+	matrix_init(res, rEnd - rStart + 1, cEnd - cStart + 1);
 	for (uint32_t r = 0; r < res->rows; r++) {
-		res->data[r] = mat->data[r];
+		res->data[r] = mat->data[r + rStart - 1] + cStart - 1;
 	}
-	/*
-	//matrix_init(res, numRows, numCols);
-	for (uint32_t r = 0; r < numRows; r++) {
-		for (uint32_t c = 0; c < numCols; c++) {
-			res->data[r][c] = mat->data[rStart + r - 1][cStart + c - 1];
-		}
-	}
-	*/
 	return res;
 }
 

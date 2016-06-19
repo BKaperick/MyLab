@@ -57,7 +57,6 @@ matrix* variable_get_matrix(char* name) {
 	indices[1] = atoi(&name[ind2]);
 	matrix* out = malloc(sizeof(matrix));
 	out = NULL;
-	
 	//Checking if variable name is stored in memory
 	for (int i = 0; i < vhp->size; i++) {
 		if (strcmp(variable_names()[i], name) == 0) {
@@ -197,8 +196,8 @@ bool parse(char* input) {
 	bool output = false;
 
 	//Print out all words for debugging purposes
-	//for(int i =0; i<args; i++)	
-	//	printf("word \"%s\"\n", words[i]);
+	for(int i =0; i<args; i++)	
+		printf("word \"%s\"\n", words[i]);
 	
 	//Instantiating a new matrix
 	if (args == 4 && strcmp(DEFINE, words[0]) == 0) {
@@ -206,7 +205,7 @@ bool parse(char* input) {
 	}
 	
 	//Running file
-	if (args == 2 && strcmp(RUN, words[0]) == 0) {
+	else if (args == 2 && strcmp(RUN, words[0]) == 0) {
 		char line[MAX_INPUT_SIZE];
 		FILE *fp = fopen(words[1], "r");
 		while (fgets(line, sizeof line, fp)) {
