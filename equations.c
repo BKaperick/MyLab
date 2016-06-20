@@ -12,6 +12,13 @@
 int comp(char* c1, char* c2) {
 	if (!c2)
 		return 2;
+	if (strcmp(c1,"==") == 0) {
+		if (strcmp(c2, "==") == 0) {return 0;}
+		else{	return 1;}
+	}
+	if (strcmp(c2,"==") == 0) {
+		return -1;
+	}
 	if (strcmp(c1, "*") == 0) {
 		if (strcmp(c2, "*") == 0)	{return 0;}
 		else{	return 1;}
@@ -22,7 +29,7 @@ int comp(char* c1, char* c2) {
 	else	{return 0;}	
 }
 bool op(char* c) {
-	return (strcmp(c, "+") == 0 || strcmp(c, "-") == 0 || strcmp(c, "*") == 0);
+	return (strcmp(c, "==") == 0 || strcmp(c, "+") == 0 || strcmp(c, "-") == 0 || strcmp(c, "*") == 0);
 }
 
 bool paren(char* c) {
@@ -145,7 +152,14 @@ matrix* operate(matrix* val1, matrix* val2, char* op) {
 		return matrix_sub(val1, val2);
 	else if (strcmp(op, "*") == 0)
 		return matrix_mult(val1, val2);
-	else
+	else if (strcmp(op, "==") == 0) {
+		printf("in the right place\n");
+		double res = matrix_compare(val1, val2, .0001)?1.0:0.0;
+		matrix* out = malloc(sizeof(matrix));
+	       	convert_scalar(res, out);
+		return out;
+	}	
+	else 
 		return NULL;
 }
 

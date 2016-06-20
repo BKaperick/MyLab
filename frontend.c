@@ -176,14 +176,26 @@ bool parse(char* input) {
 				w_index++;
 			}
 			
-			//if (input[i] == '=')
-				//left_hand = false;
 			//Also save operator as a separate word
-			word[w_index] = input[i];
-			word[w_index+1] = '\0';
-			words[wrds_index] = &(word[w_index]);
-			wrds_index++;
-			w_index += 2;
+			
+			//If it is a two char operator ('==' is only one currently)
+			if (input[i+1] == '=') {
+				word[w_index] = input[i];
+				word[w_index+1] = input[i+1];
+				word[w_index+2] = '\0';
+				words[wrds_index] = &(word[w_index]);
+				wrds_index++;
+				w_index += 3;
+				i++;
+			}
+			//one char operator
+			else {
+				word[w_index] = input[i];
+				word[w_index+1] = '\0';
+				words[wrds_index] = &(word[w_index]);
+				wrds_index++;
+				w_index += 2;
+			}
 		}
 		else {
 			//Simply take in next letter to word
@@ -240,7 +252,7 @@ bool parse(char* input) {
 		else if (args >= 3) {
 			printf("storing \n");
 			output = evaluateEq(&(words[2]), args-2, lhMatrix);
-			matrix_print(lhMatrix);
+			//matrix_print(lhMatrix);
 			if (!output) {
 				printf("RIGHT HAND SIDE IS INVALID ");
 			}
@@ -249,13 +261,24 @@ bool parse(char* input) {
 			printf("CANNOT END AN EXPRESSION WITH '=' ");
 		}	
 	}
+	else if (strcmp(words[1], "====") == 0) {
+		matrix* lhMatrix = variable_get_matrix(words[0]);
+		matrix* rhMatrix = malloc(sizeof(matrix));
+		output = evaluateEq(&(words[2]), args-2, rhMatrix);
+		float val = (float)matrix_compare(lhMatrix, rhMatrix, .0001);
+		matrix* temp = malloc(sizeof(matrix));
+		matrix_init(temp,1,1);
+		temp->data[0][0] = val;
+		variable_add(temp, "temp");
+		output = true;
+	}
 
 	//Calculate and print result, but don't save it
 	else {
 		matrix* temp = malloc(sizeof(matrix));
 		output = evaluateEq(words, args, temp);
 		variable_add(temp, "temp");
-		matrix_print(temp);
+		//matrix_print(temp);
 	}
 
 	//add in other functionality here

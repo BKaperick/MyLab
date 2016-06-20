@@ -75,5 +75,9 @@ bool matrix_compare(matrix* m1, matrix* m2, double tol);
 //Returns: matrices are same dimension
 bool matrix_copy(matrix* from, matrix* to);
 
+//Converts a float to a 1x1 matrix
+//Returns: res != NULL
+bool convert_scalar(double scalar, matrix* res);
+
 #endif
 

@@ -1,0 +1,3 @@
+define X 2 3;
+X = 2*X;
+print X

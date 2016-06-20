@@ -80,3 +80,10 @@ matrix* matrix_segment(matrix* mat, uint32_t rStart, uint32_t rEnd, uint32_t cSt
 	return res;
 }
 
+bool convert_scalar(double scalar, matrix* res) {
+	if (res == NULL)
+		return false;
+	matrix_init(res, 1, 1);
+	*matrix_elem(res, 1, 1) = scalar;
+	return true;
+}

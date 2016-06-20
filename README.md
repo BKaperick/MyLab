@@ -31,7 +31,7 @@ Basically a clone of MatLab for practice in C and learning some stable algorithm
 			Assignment sets the left hand variable equal to the right hand variable.
 			Note: the left hand does not have to be defined already!
 
-		iv. [variable_name / submatrix] = [any algebraic manipulation of variables or on-the-fly scalars]
+		iv. [variable_name / submatrix] = [any algebraic/boolean manipulation of variables or on-the-fly scalars]
 
 			First, the right hand side is evaluated, and then stores this value into the			    
 			left hand side.  It will be invalid syntax if the dimensions do not match.
@@ -39,11 +39,15 @@ Basically a clone of MatLab for practice in C and learning some stable algorithm
 			If the left hand side is not explicitly given, the result of the right hand side
 			will be stored in a variable "temp".
 
+			Currently, operators implemented are '+', '-', '*', '=='
+
 			Examples of valid syntax are:
 
 			"A = 2*B + 3*(C + D)"
 			"5+2*(3-5)"
 			"A = 2*A"
+			"A == B"
+			"C = A == B"
 			"A[2][3] = 5 + 3 + C[2,3]"
 			"A[2][1] = 5"
 			"A [ 2 ][1] =  5"
