@@ -153,7 +153,6 @@ matrix* operate(matrix* val1, matrix* val2, char* op) {
 	else if (strcmp(op, "*") == 0)
 		return matrix_mult(val1, val2);
 	else if (strcmp(op, "==") == 0) {
-		printf("in the right place\n");
 		double res = matrix_compare(val1, val2, .0001)?1.0:0.0;
 		matrix* out = malloc(sizeof(matrix));
 	       	convert_scalar(res, out);

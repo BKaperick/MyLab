@@ -208,8 +208,8 @@ bool parse(char* input) {
 	bool output = false;
 
 	//Print out all words for debugging purposes
-	for(int i =0; i<args; i++)	
-		printf("word \"%s\"\n", words[i]);
+	//for(int i =0; i<args; i++)	
+	//	printf("word \"%s\"\n", words[i]);
 	
 	//Instantiating a new matrix
 	if (args == 4 && strcmp(DEFINE, words[0]) == 0) {
@@ -250,7 +250,6 @@ bool parse(char* input) {
 			printf("LEFT HAND SIDE MUST BE VALID VARIABLE REFERENCE ");
 		}
 		else if (args >= 3) {
-			printf("storing \n");
 			output = evaluateEq(&(words[2]), args-2, lhMatrix);
 			//matrix_print(lhMatrix);
 			if (!output) {
