@@ -31,6 +31,9 @@
 //Number of operators currently defined
 #define NUM_OPERATORS 6
 
+//Default tolerance for double equality checks
+#define DEFAULT_TOL .0001
+
 struct variable_holder {
 	//Default containers for matrices and variable names
 	matrix* mats[INITIAL_SIZE];

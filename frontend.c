@@ -208,8 +208,8 @@ bool parse(char* input) {
 	bool output = false;
 
 	//Print out all words for debugging purposes
-	//for(int i =0; i<args; i++)	
-	//	printf("word \"%s\"\n", words[i]);
+	for(int i =0; i<args; i++)	
+		printf("word %d \"%s\"\n", i, words[i]);
 	
 	//Instantiating a new matrix
 	if (args == 4 && strcmp(DEFINE, words[0]) == 0) {
@@ -260,11 +260,22 @@ bool parse(char* input) {
 			printf("CANNOT END AN EXPRESSION WITH '=' ");
 		}	
 	}
-	else if (strcmp(words[1], "====") == 0) {
+	//
+	else if (strcmp(words[1], "==") == 0 || (strcmp(words[1], "=") == 0 && strcmp(words[3], "=") == 0)) {
 		matrix* lhMatrix = variable_get_matrix(words[0]);
 		matrix* rhMatrix = malloc(sizeof(matrix));
+
+		//Stores the evaluation of RHS into rhMatrix
 		output = evaluateEq(&(words[2]), args-2, rhMatrix);
-		float val = (float)matrix_compare(lhMatrix, rhMatrix, .0001);
+		
+		//Set tolerance for equality check
+		double tol;
+		if (strcmp(words[1], "==") == 0)
+			tol = strtof(words[1], NULL);
+		else
+			tol = DEFAULT_TOL;
+
+		double val = (double)matrix_compare(lhMatrix, rhMatrix, tol);
 		matrix* temp = malloc(sizeof(matrix));
 		matrix_init(temp,1,1);
 		temp->data[0][0] = val;

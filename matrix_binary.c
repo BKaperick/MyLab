@@ -91,6 +91,7 @@ bool matrix_compare(matrix* m1, matrix* m2, double tol) {
 		for (uint32_t c = 1; c <= m1->cols; c++) {
 			comp = (*matrix_elem(m1, r, c)) - (*matrix_elem(m2, r, c));
 			if ((-tol > comp) || (comp > tol)) {
+				printf("%d %d\n", r, c);	
 				return false;
 			}
 		}
@@ -102,7 +103,7 @@ bool matrix_compare(matrix* m1, matrix* m2, double tol) {
 bool matrix_copy(matrix* from, matrix* to) {
 	//Only include this branch if we decide it is acceptable for 'to' to be uninitiated on function call.
 	//I don't see any reason that this should not be the case.
-	if (to->size != to->rows * to->cols) {
+	if (to->size == 0 || to->size != to->rows * to->cols) {
 		matrix_init(to, from->rows, from->cols);
 	}
 	//from->cols;
