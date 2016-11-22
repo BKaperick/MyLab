@@ -5,20 +5,20 @@ test_count = 0;
 
 run test_matrixMultiply.myl;
 
-#total_passed = total_passed + result;
+total_passed = total_passed + result;
 test_count = test_count + 1
 
-#run test_defineAndRefVars.myl
-#total_passed = total_passed + result;
-#test_count = test_count + 1
+run test_defineAndRefVars.myl
+total_passed = total_passed + result;
+test_count = test_count + 1
 
-#run test_indexing1.myl
-#total_passed = total_passed + result;
-#test_count = test_count + 1
+run test_indexing1.myl
+total_passed = total_passed + result;
+test_count = test_count + 1
 
-#run test_indexing2.myl
-##total_passed = total_passed + result;
-#test_count = test_count + 1
+run test_indexing2.myl
+total_passed = total_passed + result;
+test_count = test_count + 1
 
 
 total_passed / test_count

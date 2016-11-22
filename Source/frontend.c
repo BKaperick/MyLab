@@ -123,8 +123,10 @@ bool parse(char* input) {
 
 	//Pointer to all input with null characters inserted
 	//to delimit each word
-	char* word = malloc(MAX_INPUT_SIZE*sizeof(char));
-	
+	char* word = malloc(MAX_INPUT_SIZE);
+    if (word == NULL)
+        printf("BAD\n\n\n\n");
+
 	//Current inserting index into word
 	int w_index = 0;
 
@@ -165,7 +167,7 @@ bool parse(char* input) {
 				w_index++;
 			}
 			//Terminate parsing since end of input is reached
-            if (input[i] == '\n')
+            if (input[i] == '\n' || input[i] == '#')
 				break;
 		}
 
@@ -210,14 +212,14 @@ bool parse(char* input) {
 	}
 	int args = wrds_index;
 	bool output = false;
-
+   
     //A line starting with '#' is a comment and should be ignored
     if (words[0][0] == '#')
         return true;
 
 	//Print out all words for debugging purposes
-	for(int i =0; i<args; i++)	
-		printf("word %d \"%s\"\n", i, words[i]);
+    //for(int i =0; i<args; i++)	
+	//	printf("word %d \"%s\"\n", i, words[i]);
 	
 	//Instantiating a new matrix
 	if (args == 4 && strcmp(DEFINE, words[0]) == 0) {
@@ -230,7 +232,6 @@ bool parse(char* input) {
 		FILE *fp = fopen(words[1], "r");
 		while (fgets(line, sizeof line, fp)) {
 			output = true;
-			printf("going in...\n");
             parse(line);
 		}
 		if (!output)
