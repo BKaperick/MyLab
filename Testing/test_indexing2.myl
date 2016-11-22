@@ -1,0 +1,11 @@
+define indexingB 3 1;
+define compare_indexB 3 1;
+indexing[]B[1] = 1.2;
+indexingB[2][] = 1.3;
+indexingB[2][1] = 1.4;
+
+compare_indexB[1][1] = 1.2;
+compare_indexB[2][1] = 1.3;
+compare_indexB[3][1] = 1.4;
+
+result = indexingB == compare_indexB;

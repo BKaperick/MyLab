@@ -100,8 +100,9 @@ void variable_free() {
 //parse the command user gives.  Calls any of the other necessary functions
 //defined in frontend
 bool parse(char* input) {
-	
-	if (strcmp(input, "exit\n") == 0)
+    if (strcmp(input, "\n") == 0)
+        return true;
+    else if (strcmp(input, "exit\n") == 0)
 		return true;
 
 	//Allocates memory to store separate words
@@ -163,9 +164,12 @@ bool parse(char* input) {
 				wordlength = 0;
 				w_index++;
 			}
-			if (input[i] == '\n')
+			//Terminate parsing since end of input is reached
+            if (input[i] == '\n')
 				break;
 		}
+
+        //If the character is a so-called "operator"
 		else if (in_operators(input[i])) {
 			if (wordlength > 0) {
 				//Save current word
@@ -207,6 +211,10 @@ bool parse(char* input) {
 	int args = wrds_index;
 	bool output = false;
 
+    //A line starting with '#' is a comment and should be ignored
+    if (words[0][0] == '#')
+        return true;
+
 	//Print out all words for debugging purposes
 	for(int i =0; i<args; i++)	
 		printf("word %d \"%s\"\n", i, words[i]);
@@ -222,7 +230,8 @@ bool parse(char* input) {
 		FILE *fp = fopen(words[1], "r");
 		while (fgets(line, sizeof line, fp)) {
 			output = true;
-			parse(line);
+			printf("going in...\n");
+            parse(line);
 		}
 		if (!output)
 			printf("FILE DOES NOT EXIST ");
