@@ -3,12 +3,12 @@ define result 1 1;
 define test_count 1 1;
 test_count = 0;
 
-run test_matrixMultiply.myl;
+#run test_matrixMultiply.myl;
 
 total_passed = total_passed + result;
 test_count = test_count + 1
 
-run test_defineAndRefVars.myl
+#run test_defineAndRefVars.myl
 total_passed = total_passed + result;
 test_count = test_count + 1
 
@@ -16,7 +16,7 @@ run test_indexing1.myl
 total_passed = total_passed + result;
 test_count = test_count + 1
 
-run test_indexing2.myl
+#run test_indexing2.myl
 total_passed = total_passed + result;
 test_count = test_count + 1
 

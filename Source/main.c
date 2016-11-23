@@ -7,10 +7,10 @@
 #include "frontend.h"
 
 int main() {
-	char input[MAX_INPUT_SIZE];
+	//char input[MAX_INPUT_SIZE];
 	
     //Stack of commands to execute
-    char** execute_queue = malloc(10*sizeof(char*));//malloc(MAX_SCRIPT_SIZE*MAX_SCRIPT_DEPTH*sizeof(char*));
+    char** execute_queue = malloc(10*sizeof(char*));//malloc(MAX_SCRIPT_SIZE*sizeof(char*));
     int eq_start = 0;
     int eq_end = 0;
     //char* test_str = "testing";
@@ -24,11 +24,12 @@ int main() {
 
         //Execute statements while there is still more waiting.
 	    while (eq_end - eq_start != 0) {
+            printf("executing: %s", execute_queue[eq_start]);
             execute_statement(execute_queue[eq_start], &execute_queue, &eq_end);
             eq_start++; 
         }
     }
-    while (strcmp(input, "exit\n") != 0);
+    while (strcmp(execute_queue[eq_start-1], "exit\n") != 0);
 
 	variable_free();
 
