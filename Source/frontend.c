@@ -226,17 +226,6 @@ bool parse(char* input) {
 		output = define(&(words[1]));
 	}
 	
-	//Running file
-	else if (args == 2 && strcmp(RUN, words[0]) == 0) {
-		char line[MAX_INPUT_SIZE];
-		FILE *fp = fopen(words[1], "r");
-		while (fgets(line, sizeof line, fp)) {
-			output = true;
-            parse(line);
-		}
-		if (!output)
-			printf("FILE DOES NOT EXIST ");
-	}
 
 	//Print matrix
 	//Can probably be replaced by simply entering just the matrix name?

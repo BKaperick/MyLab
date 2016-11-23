@@ -1,6 +1,6 @@
 define indexingB 3 1;
 define compare_indexB 3 1;
-indexing[]B[1] = 1.2;
+indexingB[][1] = 1.2;
 indexingB[2][] = 1.3;
 indexingB[2][1] = 1.4;
 
