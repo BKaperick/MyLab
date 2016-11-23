@@ -93,11 +93,11 @@ void variable_free();
 bool break_into_words(char* input, char*** words, int* word_count);
 
 
-void execute_statement(char* input, char*** execute_queue, int* eq_end);
+void execute_statement(char* input);
 
 //parse the command user gives.  Calls any of the other necessary functions
 //defined in frontend
-bool parse(char** words, int args, char*** execute_queue, int* eq_end);
+bool parse(char** words, int args);
 
 //Prints name if it exists in memory, otherwise prints nothing and
 //Returns: true if name exists.

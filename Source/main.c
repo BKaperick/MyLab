@@ -7,29 +7,17 @@
 #include "frontend.h"
 
 int main() {
-	//char input[MAX_INPUT_SIZE];
+	char input[MAX_INPUT_SIZE];
 	
-    //Stack of commands to execute
-    char** execute_queue = malloc(10*sizeof(char*));//malloc(MAX_SCRIPT_SIZE*sizeof(char*));
-    int eq_start = 0;
-    int eq_end = 0;
-    //char* test_str = "testing";
-    //execute_queue[0] = test_str;
     do {
         //Get input from user
         printf("> ");
-        execute_queue[eq_start] = malloc(MAX_INPUT_SIZE*sizeof(char*));
-        fgets(execute_queue[eq_start], MAX_INPUT_SIZE, stdin);
-        eq_end++;
+        fgets(input, MAX_INPUT_SIZE, stdin);
 
         //Execute statements while there is still more waiting.
-	    while (eq_end - eq_start != 0) {
-            printf("executing: %s", execute_queue[eq_start]);
-            execute_statement(execute_queue[eq_start], &execute_queue, &eq_end);
-            eq_start++; 
-        }
+        execute_statement(input);
     }
-    while (strcmp(execute_queue[eq_start-1], "exit\n") != 0);
+    while (strcmp(input, "exit\n") != 0);
 
 	variable_free();
 

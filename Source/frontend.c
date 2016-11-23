@@ -207,7 +207,7 @@ bool break_into_words(char* input, char*** words, int* word_count) {
     return true;
 }
 
-void execute_statement(char* input, char*** execute_queue, int* eq_end) {
+void execute_statement(char* input) {
 
     //Break out of input loop, deallocate memory and terminate program.
     if (strcmp(input, "exit\n") == 0)
@@ -225,7 +225,7 @@ void execute_statement(char* input, char*** execute_queue, int* eq_end) {
     if (!syntax_check)
         return;
 
-    syntax_check = parse(words, args, execute_queue, eq_end);
+    syntax_check = parse(words, args);
     if (!syntax_check) {
         printf("-- INVALID SYNTAX\n");
     }
@@ -233,7 +233,7 @@ void execute_statement(char* input, char*** execute_queue, int* eq_end) {
 
 //parse the command user gives.  Calls any of the other necessary functions
 //defined in frontend
-bool parse(char** words, int args, char*** execute_queue, int* eq_end) {
+bool parse(char** words, int args) {
 	
 	bool output = false;
    
@@ -252,15 +252,10 @@ bool parse(char** words, int args, char*** execute_queue, int* eq_end) {
     //Running a script 
     if (args == 2 && strcmp(words[0], RUN) == 0) {
         
-        (*execute_queue)[*eq_end] = malloc(MAX_INPUT_SIZE* sizeof(char*));
-        //char line[MAX_INPUT_SIZE];
+        char line[MAX_INPUT_SIZE];
         FILE *fp = fopen(words[1], "r");
-        while (fgets((*execute_queue)[*eq_end], MAX_INPUT_SIZE, fp)) {
-            
-            //Will eventually be replaced by a more structured framework for a queue
-            // and will incorporate size checks, reallocation, etc.
-            (*eq_end)++;
-            (*execute_queue)[*eq_end] = malloc(MAX_INPUT_SIZE* sizeof(char*));
+        while (fgets(line, MAX_INPUT_SIZE, fp)) {
+            execute_statement(line);
         }
         if (fp == NULL) {
             printf("FILE DOES NOT EXIST ");
