@@ -13,15 +13,18 @@ int main() {
     char** execute_queue = malloc(10*sizeof(char*));//malloc(MAX_SCRIPT_SIZE*MAX_SCRIPT_DEPTH*sizeof(char*));
     int eq_start = 0;
     int eq_end = 0;
-
+    //char* test_str = "testing";
+    //execute_queue[0] = test_str;
     do {
         //Get input from user
         printf("> ");
-        fgets(input, MAX_INPUT_SIZE, stdin);
+        execute_queue[eq_start] = malloc(MAX_INPUT_SIZE*sizeof(char*));
+        fgets(execute_queue[eq_start], MAX_INPUT_SIZE, stdin);
         eq_end++;
 
+        //Execute statements while there is still more waiting.
 	    while (eq_end - eq_start != 0) {
-            execute_statement(input, execute_queue, &eq_end);
+            execute_statement(execute_queue[eq_start], &execute_queue, &eq_end);
             eq_start++; 
         }
     }

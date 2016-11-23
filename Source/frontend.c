@@ -100,7 +100,7 @@ void variable_free() {
 
 //Breaks input string into chunks to be processed
 //Returns: success of operation
-bool break_into_words(char* input, char** words, int* word_count) {
+bool break_into_words(char* input, char*** words, int* word_count) {
 
 	//Gets the total length of input and verifies it is not too long
 	int len = strlen(input);
@@ -152,7 +152,7 @@ bool break_into_words(char* input, char** words, int* word_count) {
 			if (wordlength > 0) {
 				//Add word to words array
 				word[w_index] = '\0';
-				words[*word_count] = &(word[w_index-wordlength]);
+				(*words)[*word_count] = &(word[w_index-wordlength]);
 
 				//Update indicator variables
 				(*word_count)++;
@@ -169,7 +169,7 @@ bool break_into_words(char* input, char** words, int* word_count) {
 			if (wordlength > 0) {
 				//Save current word
 				word[w_index] = '\0';
-				words[*word_count] = &(word[w_index-wordlength]);
+				(*words)[*word_count] = &(word[w_index-wordlength]);
 				(*word_count)++;
 				wordlength = 0;
 				w_index++;
@@ -182,7 +182,7 @@ bool break_into_words(char* input, char** words, int* word_count) {
 				word[w_index] = input[i];
 				word[w_index+1] = input[i+1];
 				word[w_index+2] = '\0';
-				words[*word_count] = &(word[w_index]);
+				(*words)[*word_count] = &(word[w_index]);
 				(*word_count)++;
 				w_index += 3;
 				i++;
@@ -191,7 +191,7 @@ bool break_into_words(char* input, char** words, int* word_count) {
 			else {
 				word[w_index] = input[i];
 				word[w_index+1] = '\0';
-				words[*word_count] = &(word[w_index]);
+				(*words)[*word_count] = &(word[w_index]);
 				(*word_count)++;
 				w_index += 2;
 			}
@@ -207,7 +207,7 @@ bool break_into_words(char* input, char** words, int* word_count) {
     return true;
 }
 
-void execute_statement(char* input, char** execute_queue, int* eq_end) {
+void execute_statement(char* input, char*** execute_queue, int* eq_end) {
 
     //Break out of input loop, deallocate memory and terminate program.
     if (strcmp(input, "exit\n") == 0)
@@ -219,7 +219,7 @@ void execute_statement(char* input, char** execute_queue, int* eq_end) {
     //Allocates memory to store separate words
     char** words = malloc(MAX_WORDS*sizeof(char*));
     int args = 0;
-    bool syntax_check = break_into_words(input, words, &args);
+    bool syntax_check = break_into_words(input, &words, &args);
     
     //Function prints alerts from within
     if (!syntax_check)
@@ -233,7 +233,7 @@ void execute_statement(char* input, char** execute_queue, int* eq_end) {
 
 //parse the command user gives.  Calls any of the other necessary functions
 //defined in frontend
-bool parse(char** words, int args, char** execute_queue, int* eq_end) {
+bool parse(char** words, int args, char*** execute_queue, int* eq_end) {
 	
 	bool output = false;
    
@@ -250,29 +250,27 @@ bool parse(char** words, int args, char** execute_queue, int* eq_end) {
 	//	printf("word %d \"%s\"\n", i, words[i]);
     
     //Running a script 
-    if (strcmp(words[0], RUN) == 0) {
+    if (args == 2 && strcmp(words[0], RUN) == 0) {
         
-
-
-        char line[MAX_INPUT_SIZE];
+        (*execute_queue)[*eq_end] = malloc(MAX_INPUT_SIZE* sizeof(char*));
+        //char line[MAX_INPUT_SIZE];
         FILE *fp = fopen(words[1], "r");
-        while (fgets(line, sizeof line, fp)) {
+        while (fgets((*execute_queue)[*eq_end], MAX_INPUT_SIZE, fp)) {
             
             //Will eventually be replaced by a more structured framework for a queue
             // and will incorporate size checks, reallocation, etc.
-            
-            
-            execute_queue[*eq_end] = &(line);
             (*eq_end)++;
+            (*execute_queue)[*eq_end] = malloc(MAX_INPUT_SIZE* sizeof(char*));
         }
         if (fp == NULL) {
             printf("FILE DOES NOT EXIST ");
             return false;
         }
+        output = true;
     }
 	
 	//Instantiating a new matrix
-	if (args == 4 && strcmp(DEFINE, words[0]) == 0) {
+    else if (args == 4 && strcmp(DEFINE, words[0]) == 0) {
 		output = define(&(words[1]));
 	}
 	
