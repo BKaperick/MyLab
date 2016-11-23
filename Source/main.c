@@ -7,36 +7,30 @@
 #include "frontend.h"
 
 int main() {
-	char input[MAX_INPUT_SIZE];// = malloc(INPUT_SIZE * sizeof(char));
-    bool syntax_check;
-    FILE *fp;
-    char* filename;
-	while (strcmp("exit\n", input) != 0) {
-		printf("> ");
-		fgets(input, MAX_INPUT_SIZE, stdin);
-		if (input[0] == 'r' && input[1] == 'u' && input[2] == 'n' && input[3] == ' ') {
-            filename = input+4;
-            filename[strlen(filename)-1] = 0;
-            char line[MAX_INPUT_SIZE];
-            fp = fopen(filename, "r");
-            while (fgets(line, sizeof line, fp)) {
-                syntax_check = parse(line);
-                if (!syntax_check) {
-                    printf("-- INVALID SYNTAX\n");
-                }
-            }
-            if (!syntax_check)
-                printf("FILE DOES NOT EXIST ");
+	char input[MAX_INPUT_SIZE];
+	
+    //Stack of commands to execute
+    char** execute_queue = malloc(10*sizeof(char*));//malloc(MAX_SCRIPT_SIZE*MAX_SCRIPT_DEPTH*sizeof(char*));
+    int eq_start = 0;
+    int eq_end = 0;
+
+    do {
+        //Get input from user
+        printf("> ");
+        fgets(input, MAX_INPUT_SIZE, stdin);
+        eq_end++;
+
+	    while (eq_end - eq_start != 0) {
+            execute_statement(input, execute_queue, &eq_end);
+            eq_start++; 
         }
-        else {
-            syntax_check = parse(input);
-            if (!syntax_check) {
-                printf("-- INVALID SYNTAX\n");
-            }
-        }
-	}
+    }
+    while (strcmp(input, "exit\n") != 0);
+
 	variable_free();
 
 	return 1;
+
+
 }
 

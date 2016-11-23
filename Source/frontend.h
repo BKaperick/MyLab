@@ -88,9 +88,16 @@ void variable_free();
 // User Input Functions
 //////////////////////////////////
 
+//Breaks input string into chunks to be processed
+//Returns: success of operation
+bool break_into_words(char* input, char** words, int* word_count);
+
+
+void execute_statement(char* input, char** execute_queue, int* eq_end);
+
 //parse the command user gives.  Calls any of the other necessary functions
 //defined in frontend
-bool parse(char* input);
+bool parse(char** words, int args, char** execute_queue, int* eq_end);
 
 //Prints name if it exists in memory, otherwise prints nothing and
 //Returns: true if name exists.

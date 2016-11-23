@@ -20,5 +20,4 @@ run test_indexing2.myl
 total_passed = total_passed + result;
 test_count = test_count + 1
 
-
 total_passed / test_count

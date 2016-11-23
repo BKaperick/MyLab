@@ -97,16 +97,10 @@ void variable_free() {
 // User Input Functions
 //////////////////////////////////
 
-//parse the command user gives.  Calls any of the other necessary functions
-//defined in frontend
-bool parse(char* input) {
-    if (strcmp(input, "\n") == 0)
-        return true;
-    else if (strcmp(input, "exit\n") == 0)
-		return true;
 
-	//Allocates memory to store separate words
-	char** words = malloc(MAX_WORDS*sizeof(char*));
+//Breaks input string into chunks to be processed
+//Returns: success of operation
+bool break_into_words(char* input, char** words, int* word_count) {
 
 	//Gets the total length of input and verifies it is not too long
 	int len = strlen(input);
@@ -115,17 +109,16 @@ bool parse(char* input) {
 		return false;
 	}
 	
-	//Which index in words the next word is saved
-	int wrds_index = 0;
-
 	//The length of the current word
 	int wordlength = 0;
 
 	//Pointer to all input with null characters inserted
 	//to delimit each word
 	char* word = malloc(MAX_INPUT_SIZE);
-    if (word == NULL)
-        printf("BAD\n\n\n\n");
+    if (word == NULL) {
+		printf("MEMORY ALLOCATION FAILED ");
+        return false;
+    }
 
 	//Current inserting index into word
 	int w_index = 0;
@@ -159,10 +152,10 @@ bool parse(char* input) {
 			if (wordlength > 0) {
 				//Add word to words array
 				word[w_index] = '\0';
-				words[wrds_index] = &(word[w_index-wordlength]);
+				words[*word_count] = &(word[w_index-wordlength]);
 
 				//Update indicator variables
-				wrds_index++;
+				(*word_count)++;
 				wordlength = 0;
 				w_index++;
 			}
@@ -176,8 +169,8 @@ bool parse(char* input) {
 			if (wordlength > 0) {
 				//Save current word
 				word[w_index] = '\0';
-				words[wrds_index] = &(word[w_index-wordlength]);
-				wrds_index++;
+				words[*word_count] = &(word[w_index-wordlength]);
+				(*word_count)++;
 				wordlength = 0;
 				w_index++;
 			}
@@ -189,8 +182,8 @@ bool parse(char* input) {
 				word[w_index] = input[i];
 				word[w_index+1] = input[i+1];
 				word[w_index+2] = '\0';
-				words[wrds_index] = &(word[w_index]);
-				wrds_index++;
+				words[*word_count] = &(word[w_index]);
+				(*word_count)++;
 				w_index += 3;
 				i++;
 			}
@@ -198,8 +191,8 @@ bool parse(char* input) {
 			else {
 				word[w_index] = input[i];
 				word[w_index+1] = '\0';
-				words[wrds_index] = &(word[w_index]);
-				wrds_index++;
+				words[*word_count] = &(word[w_index]);
+				(*word_count)++;
 				w_index += 2;
 			}
 		}
@@ -210,9 +203,44 @@ bool parse(char* input) {
 			w_index++;
 		}
 	}
-	int args = wrds_index;
+
+    return true;
+}
+
+void execute_statement(char* input, char** execute_queue, int* eq_end) {
+
+    //Break out of input loop, deallocate memory and terminate program.
+    if (strcmp(input, "exit\n") == 0)
+        return;
+
+    if (strcmp(input, "\n") == 0)
+        return;
+    
+    //Allocates memory to store separate words
+    char** words = malloc(MAX_WORDS*sizeof(char*));
+    int args = 0;
+    bool syntax_check = break_into_words(input, words, &args);
+    
+    //Function prints alerts from within
+    if (!syntax_check)
+        return;
+
+    syntax_check = parse(words, args, execute_queue, eq_end);
+    if (!syntax_check) {
+        printf("-- INVALID SYNTAX\n");
+    }
+}
+
+//parse the command user gives.  Calls any of the other necessary functions
+//defined in frontend
+bool parse(char** words, int args, char** execute_queue, int* eq_end) {
+	
 	bool output = false;
    
+    //Ignore empty lines
+    if (args == 0)
+        return true;
+
     //A line starting with '#' is a comment and should be ignored
     if (words[0][0] == '#')
         return true;
@@ -220,6 +248,28 @@ bool parse(char* input) {
 	//Print out all words for debugging purposes
     //for(int i =0; i<args; i++)	
 	//	printf("word %d \"%s\"\n", i, words[i]);
+    
+    //Running a script 
+    if (strcmp(words[0], RUN) == 0) {
+        
+
+
+        char line[MAX_INPUT_SIZE];
+        FILE *fp = fopen(words[1], "r");
+        while (fgets(line, sizeof line, fp)) {
+            
+            //Will eventually be replaced by a more structured framework for a queue
+            // and will incorporate size checks, reallocation, etc.
+            
+            
+            execute_queue[*eq_end] = &(line);
+            (*eq_end)++;
+        }
+        if (fp == NULL) {
+            printf("FILE DOES NOT EXIST ");
+            return false;
+        }
+    }
 	
 	//Instantiating a new matrix
 	if (args == 4 && strcmp(DEFINE, words[0]) == 0) {

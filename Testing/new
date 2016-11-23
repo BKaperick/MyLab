@@ -1,0 +1,15 @@
+do
+    prompt arg
+    while args on queue:
+        execute arg[0]
+            if arg[0] is exit: 
+                break
+            if args[0] is newline:
+                continue
+            disassemble args[0]
+                parse arg():
+                    if args[0] is a RUN:
+                        add file args to queue
+                    else:
+                        perform arg[0]
+while args[0] != exit: 
