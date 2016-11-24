@@ -7,7 +7,7 @@ void matrix_init(matrix* mat, uint32_t r, uint32_t c) {
 	
     mat->data = calloc(r, sizeof(double*));
     if (mat->data == NULL)
-        printf("MEMORY ALLOCATION FAILED\n");
+        printf(" -- MEMORY ALLOCATION FAILED\n");
 
 	for (int i = 0; i < r; i++) {
 		mat->data[i] = calloc(c, sizeof(double));
